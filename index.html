@@ -148,29 +148,48 @@ body::after{
   #pecas .product-add{padding-left:76px!important}
 }
 
+
+/* V7 — gestão, pendências, OS e edição */
+.menu,.bell,.card{cursor:pointer}
+.quick-head{display:flex;align-items:center;justify-content:space-between}
+.quick-head h2{margin-bottom:20px}
+.quick-toggle{border:1px solid #315f85;background:rgba(2,10,18,.92);color:#9dcbff;border-radius:10px;width:38px;height:34px;font-size:20px}
+.quick.collapsed .quick-actions{display:none}.quick.collapsed{margin-bottom:0}
+.drawer{position:fixed;inset:0;z-index:60;background:#0009;display:none}.drawer.open{display:block}
+.drawer-panel{width:min(86vw,390px);height:100%;background:#050d17;border-right:1px solid #315f85;padding:calc(28px + env(safe-area-inset-top)) 18px 30px;overflow:auto}
+.drawer-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.drawer-head h2{margin:0}.drawer-close{background:none;border:0;color:#fff;font-size:30px}
+.drawer-item{width:100%;display:flex;justify-content:space-between;align-items:center;padding:17px 14px;margin:8px 0;border:1px solid #284b6a;border-radius:14px;background:#071522;color:#fff;text-align:left;font-size:15px}
+.notice-panel{position:fixed;top:95px;right:18px;z-index:65;width:min(91vw,420px);max-height:70vh;overflow:auto;background:#050d17;border:1px solid #315f85;border-radius:18px;padding:15px;display:none;box-shadow:0 15px 40px #000}.notice-panel.open{display:block}.notice-panel h2{margin:0 0 10px}.notice{padding:13px;border-bottom:1px solid #1d354c}.notice:last-child{border-bottom:0}.notice small{display:block;color:#aeb8c6;margin-top:4px}
+.section-tools{display:flex;gap:8px;margin-bottom:10px}.section-tools button,.mini-btn{border:1px solid #315f85;background:#071522;color:#9dcbff;border-radius:10px;padding:10px 12px}
+.edit-value{border:1px solid #315f85;background:#071522;color:#9dcbff;border-radius:9px;padding:7px 9px;margin-left:8px}
+.os-card{background:rgba(2,10,18,.95);border:1px solid #315f85;border-radius:18px;padding:16px;margin:10px 0}.os-card h3{margin:0 0 7px}.os-meta{color:#aeb8c6;font-size:13px;line-height:1.5}.os-total{font-size:19px;font-weight:800;margin-top:10px}.os-actions{display:flex;gap:8px;margin-top:12px}.os-actions button{flex:1;border:1px solid #315f85;background:#071522;color:#9dcbff;border-radius:10px;padding:10px}
+.part-results{max-height:180px;overflow:auto;border:1px solid #29445f;border-radius:12px;margin-bottom:10px}.part-option{padding:11px;border-bottom:1px solid #1d354c;display:flex;justify-content:space-between}.part-option:last-child{border-bottom:0}.part-option button{background:#0b79db;border:0;color:white;border-radius:8px;padding:6px 9px}.selected-part{display:flex;justify-content:space-between;gap:8px;padding:8px 0;color:#c7d1dd}.selected-part button{background:none;border:0;color:#ff8d8d}
+nav{grid-template-columns:repeat(6,1fr)}
+@media(max-width:430px){nav button{font-size:7px}.nav-icon{width:19px;height:19px}.drawer-panel{width:88vw}.notice-panel{top:82px;right:12px}}
+
 </style>
 <link rel="apple-touch-icon" href="apple-touch-icon.png?v=105">
 </head>
 <body>
 <div class="hero">
-<div class="menu"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div>
-<div class="bell"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0v5l2 3H4l2-3z"/><path d="M10 20h4"/></svg></div>
+<div class="menu" onclick="toggleMenu()"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div>
+<div class="bell" onclick="toggleNotices()"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0v5l2 3H4l2-3z"/><path d="M10 20h4"/></svg></div>
 </div>
 <main>
 <section id="inicio" class="view active">
 <div class="grid">
-<div class="card"><span class="card-icon"><svg viewBox="0 0 24 24"><path d="M2.5 4h2.5l2.2 10.2h10.2l2.2-7.2H6"/><path d="M8 10h10M10 7v7M15 7v7"/><circle cx="9" cy="18.5" r="1.5"/><circle cx="17" cy="18.5" r="1.5"/></svg></span><small>Gastos da loja</small><div class="money" id="gastosTotal"></div><div class="spark"><svg viewBox="0 0 280 42"><polyline points="0,34 27,27 51,31 77,15 102,27 130,22 157,31 187,20 214,23 243,13 280,9"/></svg></div></div>
-<div class="card"><span class="card-icon"><svg viewBox="0 0 24 24"><path d="M12 2v10M15 5c0-1.5-1.4-2.5-3-2.5S9 3.5 9 5s1.4 2.3 3 2.3 3 .9 3 2.4-1.4 2.4-3 2.4"/><path d="M3 16h4l2-2h5.5c1.3 0 2.2.8 2.2 1.9 0 .6-.3 1.1-.8 1.5H12"/><path d="M3 16v5h4l3-1h6l5-4c.8-.6.8-1.7.2-2.3-.5-.5-1.4-.6-2-.2l-3.2 2"/></svg></span><small>Crediário a receber</small><div class="money" id="crediarioTotal"></div><div class="spark"><svg viewBox="0 0 280 42"><polyline points="0,34 27,27 51,31 77,15 102,27 130,22 157,31 187,20 214,23 243,13 280,9"/></svg></div></div>
-<div class="card"><span class="card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M4 22c0-5.2 3-8.2 8-8.2s8 3 8 8.2"/></svg></span><small>Dívida pessoal à loja</small><div class="money" id="dividaTotal"></div><div class="spark"><svg viewBox="0 0 280 42"><polyline points="0,34 27,27 51,31 77,15 102,27 130,22 157,31 187,20 214,23 243,13 280,9"/></svg></div></div>
-<div class="card green"><span class="card-icon"><svg viewBox="0 0 24 24"><path d="M4 20v-5h4v5M10 20v-8h4v8M16 20V8h4v12"/><path d="M3 11l6-5 4 3 8-7"/><path d="M17 2h4v4"/></svg></span><small>Lucro Anderson</small><div class="money" id="lucroA"></div><div class="spark"><svg viewBox="0 0 280 42"><polyline points="0,34 27,27 51,31 77,15 102,27 130,22 157,31 187,20 214,23 243,13 280,9"/></svg></div></div>
-<div class="card purple"><span class="card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M4 22c0-5.2 3-8.2 8-8.2s8 3 8 8.2"/></svg></span><small>Lucro Ryan</small><div class="money" id="lucroR"></div><div class="spark"><svg viewBox="0 0 280 42"><polyline points="0,34 27,27 51,31 77,15 102,27 130,22 157,31 187,20 214,23 243,13 280,9"/></svg></div></div>
+<div class="card" onclick="goView('gastos')"><span class="card-icon"><svg viewBox="0 0 24 24"><path d="M2.5 4h2.5l2.2 10.2h10.2l2.2-7.2H6"/><path d="M8 10h10M10 7v7M15 7v7"/><circle cx="9" cy="18.5" r="1.5"/><circle cx="17" cy="18.5" r="1.5"/></svg></span><small>Gastos da loja</small><div class="money" id="gastosTotal"></div><div class="spark"><svg viewBox="0 0 280 42"><polyline points="0,34 27,27 51,31 77,15 102,27 130,22 157,31 187,20 214,23 243,13 280,9"/></svg></div></div>
+<div class="card" onclick="goView('credito')"><span class="card-icon"><svg viewBox="0 0 24 24"><path d="M12 2v10M15 5c0-1.5-1.4-2.5-3-2.5S9 3.5 9 5s1.4 2.3 3 2.3 3 .9 3 2.4-1.4 2.4-3 2.4"/><path d="M3 16h4l2-2h5.5c1.3 0 2.2.8 2.2 1.9 0 .6-.3 1.1-.8 1.5H12"/><path d="M3 16v5h4l3-1h6l5-4c.8-.6.8-1.7.2-2.3-.5-.5-1.4-.6-2-.2l-3.2 2"/></svg></span><small>Crediário a receber</small><div class="money" id="crediarioTotal"></div><div class="spark"><svg viewBox="0 0 280 42"><polyline points="0,34 27,27 51,31 77,15 102,27 130,22 157,31 187,20 214,23 243,13 280,9"/></svg></div></div>
+<div class="card" onclick="goView('socios')"><span class="card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M4 22c0-5.2 3-8.2 8-8.2s8 3 8 8.2"/></svg></span><small>Dívida pessoal à loja</small><div class="money" id="dividaTotal"></div><div class="spark"><svg viewBox="0 0 280 42"><polyline points="0,34 27,27 51,31 77,15 102,27 130,22 157,31 187,20 214,23 243,13 280,9"/></svg></div></div>
+<div class="card green" onclick="goView('socios')"><span class="card-icon"><svg viewBox="0 0 24 24"><path d="M4 20v-5h4v5M10 20v-8h4v8M16 20V8h4v12"/><path d="M3 11l6-5 4 3 8-7"/><path d="M17 2h4v4"/></svg></span><small>Lucro Anderson</small><div class="money" id="lucroA"></div><div class="spark"><svg viewBox="0 0 280 42"><polyline points="0,34 27,27 51,31 77,15 102,27 130,22 157,31 187,20 214,23 243,13 280,9"/></svg></div></div>
+<div class="card purple" onclick="goView('socios')"><span class="card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M4 22c0-5.2 3-8.2 8-8.2s8 3 8 8.2"/></svg></span><small>Lucro Ryan</small><div class="money" id="lucroR"></div><div class="spark"><svg viewBox="0 0 280 42"><polyline points="0,34 27,27 51,31 77,15 102,27 130,22 157,31 187,20 214,23 243,13 280,9"/></svg></div></div>
 </div>
-<div class="quick"><h2>Ações rápidas</h2>
+<div class="quick" id="quick"><div class="quick-head"><h2>Ações rápidas</h2><button class="quick-toggle" onclick="toggleQuick()">⌃</button></div><div class="quick-actions">
 <button class="action" onclick="openModal('gasto')"><span class="plus">＋</span><span class="copy">NOVO GASTO<small>Registrar uma nova despesa</small></span><span class="chev">›</span></button>
 <button class="action" onclick="openModal('servico')"><span class="plus">＋</span><span class="copy">NOVO SERVIÇO OU PRODUTO<small>Adicionar serviço ou produto</small></span><span class="chev">›</span></button>
-</div>
+</div></div>
 </section>
-<section id="gastos" class="view"><h2 class="list-title">Gastos da loja</h2><div id="gastosList"></div></section>
+<section id="gastos" class="view"><h2 class="list-title">Gastos da loja</h2><div class="section-tools"><button onclick="openModal('gasto')">＋ Novo gasto</button></div><div id="gastosList"></div></section>
 <section id="credito" class="view"><h2 class="list-title">Crediário em aberto</h2><div id="creditoList"></div></section>
 <section id="pecas" class="view">
 <h2 class="list-title">Peças e telas</h2>
@@ -179,6 +198,7 @@ body::after{
 <div id="pecasList"></div>
 </section>
 <section id="socios" class="view"><h2 class="list-title">Sócios</h2><div id="sociosList"></div></section>
+<section id="os" class="view"><h2 class="list-title">Ordens de Serviço</h2><div class="section-tools"><button onclick="openOS()">＋ Nova OS</button></div><div id="osList"></div></section>
 </main>
 <nav>
 <button class="active home" onclick="show('inicio',this)"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v10h-6v-6H9v6H3z"/></svg></span>INÍCIO</button>
@@ -186,8 +206,9 @@ body::after{
 <button onclick="show('credito',this)"><span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8" cy="10" r="2"/><path d="M5 16c1-2 5-2 6 0M14 9h4M14 13h4"/></svg></span>CREDIÁRIO</button>
 <button onclick="show('pecas',this)"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4zM3 7v10l9 4 9-4V7M12 11v10"/></svg></span>PEÇAS</button>
 <button onclick="show('socios',this)"><span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M2 20c0-4 2-7 6-7s6 3 6 7M12 20c0-3 2-6 5-6s5 3 5 6"/></svg></span>SÓCIOS</button>
+<button onclick="show('os',this)"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M14 6l4-4 4 4-4 4zM3 5h7M3 10h7M3 15h18M3 20h18"/></svg></span>OS</button>
 </nav>
-<dialog id="modal"><form method="dialog" id="form"><h2 id="modalTitle"></h2><div id="fields"></div><div class="actions"><button class="secondary" value="cancel">Cancelar</button><button class="save" value="default" onclick="saveEntry(event)">Salvar</button></div></form></dialog>
+<dialog id="modal"><form method="dialog" id="form"><h2 id="modalTitle"></h2><div id="fields"></div><div class="actions"><button class="secondary" type="button" onclick="modal.close()">Cancelar</button><button class="save" value="default" onclick="saveEntry(event)">Salvar</button></div></form></dialog>
 <dialog id="productModal">
 <form method="dialog" id="productForm">
 <h2 id="productModalTitle">Adicionar produto</h2>
@@ -195,9 +216,37 @@ body::after{
 <label>Categoria</label><input id="pCat" placeholder="Ex.: COMUM, OLED, SOFT OLED, FHD" required>
 <label>Valor</label><input id="pValor" type="number" step=".01" required>
 <label>Fornecedor</label><input id="pFornecedor" value="Mastter Peças">
-<div class="actions"><button class="secondary" value="cancel">Cancelar</button><button class="save" value="default" onclick="saveProduct(event)">Salvar</button></div>
+<div class="actions"><button class="secondary" type="button" onclick="productModal.close()">Cancelar</button><button class="save" value="default" onclick="saveProduct(event)">Salvar</button></div>
 </form>
 </dialog>
+<dialog id="osModal"><form id="osForm" onsubmit="saveOS(event)">
+<h2 id="osModalTitle">Nova ordem de serviço</h2>
+<label>Cliente</label><input id="osCliente" required>
+<label>Telefone</label><input id="osTelefone">
+<label>Aparelho</label><input id="osAparelho" required>
+<label>IMEI / Serial</label><input id="osSerial">
+<label>Defeito relatado</label><input id="osDefeito" required>
+<label>Serviço a realizar</label><input id="osServico" required>
+<label>Valor do serviço / mão de obra</label><input id="osMaoObra" type="number" step=".01" value="0">
+<label>Pesquisar peça para usar no serviço</label><input id="osPartSearch" placeholder="Digite modelo, categoria ou tela..." oninput="searchOSParts()">
+<div id="osPartResults" class="part-results"></div><div id="osSelectedParts"></div>
+<label>Status</label><select id="osStatus"><option>Em análise</option><option>Aguardando peça</option><option>Em reparo</option><option>Pronto</option><option>Entregue</option></select>
+<div class="actions"><button class="secondary" type="button" onclick="osModal.close()">Cancelar</button><button class="save" type="submit">Salvar OS</button></div>
+</form></dialog>
+<div id="drawer" class="drawer" onclick="closeDrawerBackdrop(event)"><div class="drawer-panel">
+<div class="drawer-head"><h2>Menu de gestão</h2><button class="drawer-close" onclick="toggleMenu()">×</button></div>
+<button class="drawer-item" onclick="goView('inicio');toggleMenu()">Resumo financeiro <span>›</span></button>
+<button class="drawer-item" onclick="showHistory()">Histórico de movimentações <span>›</span></button>
+<button class="drawer-item" onclick="goView('gastos');toggleMenu()">Despesas da loja <span>›</span></button>
+<button class="drawer-item" onclick="goView('socios');toggleMenu()">Dívidas dos sócios <span>›</span></button>
+<button class="drawer-item" onclick="goView('pecas');toggleMenu()">Peças e fornecedores <span>›</span></button>
+<button class="drawer-item" onclick="goView('os');toggleMenu()">Ordens de serviço <span>›</span></button>
+<button class="drawer-item" onclick="exportBackup()">Exportar backup <span>↓</span></button>
+<button class="drawer-item" onclick="document.getElementById('backupFile').click()">Restaurar backup <span>↑</span></button>
+<input id="backupFile" type="file" accept=".json,application/json" hidden onchange="restoreBackup(event)">
+</div></div>
+<div id="noticePanel" class="notice-panel"><h2>Central de pendências</h2><div id="noticeList"></div></div>
+
 <script>
 const seed={
 gastos:[
@@ -216,48 +265,59 @@ dividas:{Anderson:0,Ryan:250},movimentos:[],
 pecas: [{"cat": "COMUM", "nome": "6G", "valor": 130}, {"cat": "COMUM", "nome": "6S", "valor": 130}, {"cat": "COMUM", "nome": "6S PLUS", "valor": 140}, {"cat": "COMUM", "nome": "7G", "valor": 140}, {"cat": "COMUM", "nome": "7 PLUS", "valor": 150}, {"cat": "COMUM", "nome": "8 PLUS", "valor": 150}, {"cat": "COMUM", "nome": "8 PLUS VIVID PREMIUM", "valor": 230}, {"cat": "COMUM", "nome": "7 PLUS VIVID PREMIUM", "valor": 230}, {"cat": "COMUM", "nome": "XR DIAMONDS", "valor": 260}, {"cat": "COMUM", "nome": "11 DIAMONDS", "valor": 260}, {"cat": "OLED", "nome": "X OLED", "valor": 340}, {"cat": "OLED", "nome": "XS OLED", "valor": 340}, {"cat": "OLED", "nome": "XS MAX OLED", "valor": 470}, {"cat": "OLED", "nome": "11 PRO OLED PREMIUM", "valor": 470}, {"cat": "OLED", "nome": "12 / 12 PRO OLED", "valor": 480}, {"cat": "SOFT OLED", "nome": "11 PRO MAX SOFT OLED", "valor": 530}, {"cat": "SOFT OLED", "nome": "12 / 12 PRO SOFT OLED", "valor": 530}, {"cat": "SOFT OLED", "nome": "12 PRO MAX SOFT OLED", "valor": 800}, {"cat": "SOFT OLED", "nome": "13 SOFT OLED", "valor": 680}, {"cat": "SOFT OLED", "nome": "13 PRO SOFT OLED", "valor": 950}, {"cat": "SOFT OLED", "nome": "13 PRO MAX SOFT OLED", "valor": 950}, {"cat": "SOFT OLED", "nome": "14 SOFT OLED", "valor": 740}, {"cat": "SOFT OLED", "nome": "14 PLUS SOFT OLED", "valor": 1050}, {"cat": "SOFT OLED", "nome": "14 PRO SOFT OLED", "valor": 1050}, {"cat": "SOFT OLED", "nome": "14 PRO MAX SOFT OLED", "valor": 1050}, {"cat": "SOFT OLED", "nome": "15 SOFT OLED", "valor": 1160}, {"cat": "SOFT OLED", "nome": "15 PRO SOFT OLED", "valor": 1260}, {"cat": "SOFT OLED", "nome": "15 PRO MAX SOFT OLED", "valor": 1370}, {"cat": "SOFT OLED", "nome": "16 SOFT OLED", "valor": 1470}, {"cat": "SOFT OLED", "nome": "16 PRO", "valor": 1680}, {"cat": "SOFT OLED", "nome": "16 PRO MAX SOFT OLED", "valor": 1680}, {"cat": "SOFT OLED", "nome": "17 PRO MAX SOFT OLED", "valor": 2100}, {"cat": "FHD", "nome": "X FHD", "valor": 260}, {"cat": "FHD", "nome": "XS FHD", "valor": 260}, {"cat": "FHD", "nome": "XS MAX FHD", "valor": 260}, {"cat": "FHD", "nome": "11 PRO FHD", "valor": 320}, {"cat": "FHD", "nome": "11 PRO MAX FHD", "valor": 320}, {"cat": "FHD", "nome": "12 / 12 PRO FHD", "valor": 340}, {"cat": "FHD", "nome": "12 PRO MAX FHD", "valor": 380}, {"cat": "FHD", "nome": "13 FHD", "valor": 400}, {"cat": "FHD", "nome": "13 PRO FHD", "valor": 530}, {"cat": "FHD", "nome": "13 PRO MAX FHD", "valor": 530}, {"cat": "FHD", "nome": "14 FHD", "valor": 490}, {"cat": "FHD", "nome": "14 PLUS FHD", "valor": 550}, {"cat": "FHD", "nome": "14 PRO FHD", "valor": 740}, {"cat": "FHD", "nome": "14 PRO MAX FHD", "valor": 740}, {"cat": "FHD", "nome": "15 FHD", "valor": 780}, {"cat": "FHD", "nome": "15 PRO FHD", "valor": 820}, {"cat": "FHD", "nome": "15 PRO MAX FHD", "valor": 890}, {"cat": "FHD", "nome": "16 FHD", "valor": 840}, {"cat": "FHD", "nome": "16 PRO FHD", "valor": 950}, {"cat": "FHD", "nome": "17 PRO MAX FHD", "valor": 1160}, {"cat": "VIVID KIM", "nome": "11", "valor": 200}, {"cat": "VIVID KIM", "nome": "XR", "valor": 200}, {"cat": "VIVID KIM", "nome": "X", "valor": 230}, {"cat": "VIVID KIM", "nome": "XS", "valor": 230}, {"cat": "VIVID KIM", "nome": "XS MAX", "valor": 240}, {"cat": "VIVID KIM", "nome": "11 PRO", "valor": 260}, {"cat": "VIVID KIM", "nome": "11 PRO MAX", "valor": 270}, {"cat": "VIVID KIM", "nome": "12 / 12 PRO KIM", "valor": 260}, {"cat": "VIVID KIM", "nome": "12 PRO MAX KIM", "valor": 300}, {"cat": "VIVID KIM", "nome": "13", "valor": 300}, {"cat": "VIVID KIM", "nome": "14 PRO", "valor": 300}, {"cat": "VIVID KIM", "nome": "14 PLUS", "valor": 280}, {"cat": "VIVID KIM", "nome": "14", "valor": 280}, {"cat": "VIVID KIM", "nome": "14 PRO MAX", "valor": 320}, {"cat": "VIVID KIM", "nome": "15", "valor": 300}, {"cat": "VIVID KIM", "nome": "15 PRO MAX", "valor": 320}, {"cat": "VIVID KIM", "nome": "16", "valor": 420}, {"cat": "VIVID KIM", "nome": "16 PRO", "valor": 530}, {"cat": "VIVID KIM", "nome": "16 PRO MAX", "valor": 530}, {"cat": "VIVID KIM", "nome": "17", "valor": 630}, {"cat": "VIVID KIM", "nome": "17 PRO", "valor": 630}, {"cat": "VIVID KIM", "nome": "17 PRO MAX", "valor": 630}]
 };
 let db=JSON.parse(localStorage.getItem("lander_db")||"null")||seed;
+db.gastos=db.gastos||[];db.credito=db.credito||[];db.dividas=db.dividas||{Anderson:0,Ryan:250};db.movimentos=db.movimentos||[];db.pecas=db.pecas||seed.pecas;db.os=db.os||[];db.historico=db.historico||[];
 const money=v=>Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
-function persist(){localStorage.setItem("lander_db",JSON.stringify(db));render()}
-function show(id,b){document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));b.classList.add("active")}
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function logAction(txt){db.historico.unshift({texto:txt,data:new Date().toLocaleString("pt-BR")});db.historico=db.historico.slice(0,300)}
+function persist(msg){if(msg)logAction(msg);localStorage.setItem("lander_db",JSON.stringify(db));render()}
+function show(id,b){document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));if(b)b.classList.add("active");window.scrollTo(0,0)}
+function goView(id){let b=[...document.querySelectorAll("nav button")].find(x=>x.getAttribute("onclick")?.includes(`'${id}'`));show(id,b)}
+function toggleQuick(){quick.classList.toggle("collapsed");localStorage.setItem("lander_quick_hidden",quick.classList.contains("collapsed")?"1":"0");document.querySelector(".quick-toggle").textContent=quick.classList.contains("collapsed")?"⌄":"⌃"}
+function toggleMenu(){drawer.classList.toggle("open")}
+function closeDrawerBackdrop(e){if(e.target===drawer)toggleMenu()}
+function toggleNotices(){noticePanel.classList.toggle("open");renderNotices()}
 function render(){
-let gt=db.gastos.reduce((a,x)=>a+x.valor,0), ct=db.credito.reduce((a,x)=>a+(x.total-x.pago),0), dt=Object.values(db.dividas).reduce((a,x)=>a+x,0);
-let lucro=db.movimentos.reduce((a,x)=>a+(x.valor-x.custo),0)/2;
-gastosTotal.textContent=money(gt);crediarioTotal.textContent=money(ct);dividaTotal.textContent=money(dt);lucroA.textContent=money(lucro);lucroR.textContent=money(lucro);
-gastosList.innerHTML=db.gastos.map(x=>`<div class="row"><div><b>${x.nome}</b><small>${x.tipo}</small></div><div class="right"><b>${money(x.valor)}</b><span class="pill">${x.status}</span></div></div>`).join("");
-creditoList.innerHTML=db.credito.map((x,i)=>`<div class="row" onclick="pay(${i})"><div><b>${x.cliente}</b><small>${x.item} • ${x.acordo}</small></div><div class="right"><b>${money(x.total-x.pago)}</b><small>faltando</small></div></div>`).join("");
-sociosList.innerHTML=`<div class="row"><div><b>Anderson</b><small>Dívida pessoal</small></div><b>${money(db.dividas.Anderson)}</b></div><div class="row"><div><b>Ryan</b><small>Dívida pessoal</small></div><b>${money(db.dividas.Ryan)}</b></div><div class="row"><div><b>Divisão de lucro</b><small>Serviços e produtos</small></div><b>50% / 50%</b></div>`;
-renderPecas()
+ let gt=db.gastos.reduce((a,x)=>a+Number(x.valor||0),0),ct=db.credito.reduce((a,x)=>a+Math.max(0,Number(x.total||0)-Number(x.pago||0)),0),dt=Object.values(db.dividas).reduce((a,x)=>a+Number(x||0),0);
+ let lucroTotal=db.movimentos.filter(x=>["servico","reparo","produto"].includes(x.tipo||"servico")).reduce((a,x)=>a+Math.max(0,Number(x.valor||0)-Number(x.custo||0)),0);
+ let lucro=lucroTotal/2;
+ gastosTotal.textContent=money(gt);crediarioTotal.textContent=money(ct);dividaTotal.textContent=money(dt);lucroA.textContent=money(lucro);lucroR.textContent=money(lucro);
+ gastosList.innerHTML=db.gastos.map((x,i)=>`<div class="row"><div><b>${esc(x.nome)}</b><small>${esc(x.tipo||"Loja")}</small></div><div class="product-right"><b>${money(x.valor)}</b><div class="product-actions"><button onclick="editGasto(${i})">✎</button><button onclick="deleteGasto(${i})">×</button></div></div></div>`).join("");
+ creditoList.innerHTML=db.credito.map((x,i)=>`<div class="row" onclick="pay(${i})"><div><b>${esc(x.cliente)}</b><small>${esc(x.item)} • ${esc(x.acordo)}</small></div><div class="right"><b>${money(Number(x.total)-Number(x.pago))}</b><small>faltando</small></div></div>`).join("");
+ sociosList.innerHTML=`<div class="row"><div><b>Anderson</b><small>Dívida pessoal</small></div><div><b>${money(db.dividas.Anderson)}</b><button class="edit-value" onclick="editSocio('Anderson')">✎</button></div></div><div class="row"><div><b>Ryan</b><small>Dívida pessoal</small></div><div><b>${money(db.dividas.Ryan)}</b><button class="edit-value" onclick="editSocio('Ryan')">✎</button></div></div><div class="row"><div><b>Lucro total realizado</b><small>Lucro de serviços, reparos e produtos</small></div><b>${money(lucroTotal)}</b></div><div class="row"><div><b>Divisão de lucro</b><small>Anderson / Ryan</small></div><b>${money(lucro)} cada</b></div>`;
+ renderPecas();renderOS();renderNotices()
 }
 function renderPecas(){
  let q=(document.getElementById("busca")?.value||"").toLowerCase();
- pecasList.innerHTML=db.pecas.map((x,i)=>({...x,_i:i}))
- .filter(x=>(x.cat+" "+x.nome+" "+(x.fornecedor||"Mastter Peças")).toLowerCase().includes(q))
- .map(x=>`<div class="row product-row"><div><b>${x.nome}</b><small>${x.cat} • ${x.fornecedor||"Mastter Peças"}</small></div><div class="product-right"><b>${money(x.valor)}</b><div class="product-actions"><button onclick="editProduct(${x._i})" aria-label="Editar">✎</button><button onclick="deleteProduct(${x._i})" aria-label="Excluir">×</button></div></div></div>`).join("")
+ pecasList.innerHTML=db.pecas.map((x,i)=>({...x,_i:i})).filter(x=>(x.cat+" "+x.nome+" "+(x.fornecedor||"Mastter Peças")).toLowerCase().includes(q)).map(x=>`<div class="row product-row"><div><b>${esc(x.nome)}</b><small>${esc(x.cat)} • ${esc(x.fornecedor||"Mastter Peças")}</small></div><div class="product-right"><b>${money(x.valor)}</b><div class="product-actions"><button onclick="editProduct(${x._i})">✎</button><button onclick="deleteProduct(${x._i})">×</button></div></div></div>`).join("")
 }
 let editingProductIndex=null;
-function openProductModal(){
- editingProductIndex=null;productModalTitle.textContent="Adicionar produto";
- pNome.value="";pCat.value="";pValor.value="";pFornecedor.value="Mastter Peças";productModal.showModal()
-}
-function editProduct(i){
- editingProductIndex=i;let x=db.pecas[i];productModalTitle.textContent="Editar produto";
- pNome.value=x.nome;pCat.value=x.cat;pValor.value=x.valor;pFornecedor.value=x.fornecedor||"Mastter Peças";productModal.showModal()
-}
-function saveProduct(e){
- e.preventDefault();
- let item={nome:pNome.value.trim(),cat:pCat.value.trim().toUpperCase(),valor:+pValor.value,fornecedor:pFornecedor.value.trim()||"Mastter Peças"};
- if(!item.nome||!item.cat||!item.valor)return;
- if(editingProductIndex===null)db.pecas.push(item);else db.pecas[editingProductIndex]=item;
- productModal.close();persist()
-}
-function deleteProduct(i){
- if(confirm(`Excluir ${db.pecas[i].nome}?`)){db.pecas.splice(i,1);persist()}
-}
+function openProductModal(){editingProductIndex=null;productModalTitle.textContent="Adicionar produto";productForm.reset();pFornecedor.value="Mastter Peças";productModal.showModal()}
+function editProduct(i){editingProductIndex=i;let x=db.pecas[i];productModalTitle.textContent="Editar produto";pNome.value=x.nome;pCat.value=x.cat;pValor.value=x.valor;pFornecedor.value=x.fornecedor||"Mastter Peças";productModal.showModal()}
+function saveProduct(e){e.preventDefault();let item={nome:pNome.value.trim(),cat:pCat.value.trim().toUpperCase(),valor:+pValor.value,fornecedor:pFornecedor.value.trim()||"Mastter Peças"};if(!item.nome||!item.cat||!item.valor)return;if(editingProductIndex===null)db.pecas.push(item);else db.pecas[editingProductIndex]=item;productModal.close();persist(`${editingProductIndex===null?"Produto adicionado":"Produto editado"}: ${item.nome}`)}
+function deleteProduct(i){if(confirm(`Excluir ${db.pecas[i].nome}?`)){let n=db.pecas[i].nome;db.pecas.splice(i,1);persist(`Produto excluído: ${n}`)}}
+function editGasto(i){let x=db.gastos[i],nome=prompt("Nome do gasto",x.nome);if(nome===null)return;let valor=prompt("Valor",x.valor);if(valor===null)return;let n=Number(String(valor).replace(",","."));if(!Number.isFinite(n))return alert("Valor inválido");x.nome=nome.trim()||x.nome;x.valor=n;persist(`Gasto editado: ${x.nome}`)}
+function deleteGasto(i){if(confirm(`Excluir ${db.gastos[i].nome}?`)){let n=db.gastos[i].nome;db.gastos.splice(i,1);persist(`Gasto excluído: ${n}`)}}
+function editSocio(nome){let v=prompt(`Dívida pessoal de ${nome}`,db.dividas[nome]);if(v===null)return;v=Number(String(v).replace(",","."));if(!Number.isFinite(v))return alert("Valor inválido");db.dividas[nome]=v;persist(`Dívida de ${nome} alterada para ${money(v)}`)}
 let mode="";
-function openModal(m){mode=m;modalTitle.textContent=m==="gasto"?"Novo gasto":"Novo serviço ou produto";fields.innerHTML=m==="gasto"?`<label>Descrição</label><input id="f1" required><label>Valor</label><input id="f2" type="number" step=".01" required><label>Status</label><select id="f3"><option>Pago</option><option>Pendente</option></select>`:`<label>Descrição</label><input id="f1" required><label>Custo</label><input id="f2" type="number" step=".01" required><label>Valor cobrado / venda</label><input id="f3" type="number" step=".01" required>`;modal.showModal()}
-function saveEntry(e){e.preventDefault();if(mode==="gasto")db.gastos.push({nome:f1.value,valor:+f2.value,status:f3.value,tipo:"Loja"});else db.movimentos.push({nome:f1.value,custo:+f2.value,valor:+f3.value});modal.close();persist()}
-function pay(i){let x=db.credito[i],v=prompt(`Pagamento de ${x.cliente}. Valor recebido:`);if(v&&+v>0){x.pago=Math.min(x.total,x.pago+(+v));persist()}}
-if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js?v=106");
+function openModal(m){mode=m;modalTitle.textContent=m==="gasto"?"Novo gasto":"Novo serviço ou produto";fields.innerHTML=m==="gasto"?`<label>Descrição</label><input id="f1" required><label>Valor</label><input id="f2" type="number" step=".01" required><label>Status</label><select id="f3"><option>Pago</option><option>Pendente</option></select>`:`<label>Descrição</label><input id="f1" required><label>Tipo</label><select id="ftipo"><option value="servico">Serviço</option><option value="reparo">Reparo</option><option value="produto">Produto</option></select><label>Custo</label><input id="f2" type="number" step=".01" required><label>Valor cobrado / venda</label><input id="f3" type="number" step=".01" required>`;modal.showModal()}
+function saveEntry(e){e.preventDefault();if(!form.reportValidity())return;if(mode==="gasto"){db.gastos.push({nome:f1.value.trim(),valor:+f2.value,status:f3.value,tipo:"Loja"});modal.close();persist(`Novo gasto: ${f1.value.trim()}`)}else{db.movimentos.push({nome:f1.value.trim(),tipo:ftipo.value,custo:+f2.value,valor:+f3.value});modal.close();persist(`Novo ${ftipo.options[ftipo.selectedIndex].text.toLowerCase()}: ${f1.value.trim()}`)}}
+function pay(i){let x=db.credito[i],v=prompt(`Pagamento de ${x.cliente}. Valor recebido:`);if(v===null)return;v=Number(String(v).replace(",","."));if(v>0){x.pago=Math.min(x.total,Number(x.pago)+v);persist(`Pagamento recebido de ${x.cliente}: ${money(v)}`)}}
+function renderNotices(){if(!document.getElementById("noticeList"))return;let n=[];db.credito.filter(x=>x.total>x.pago).forEach(x=>n.push(`<div class="notice"><b>${esc(x.cliente)} — ${money(x.total-x.pago)} a receber</b><small>${esc(x.item)} • ${esc(x.acordo)}</small></div>`));db.gastos.filter(x=>x.status==="Pendente").forEach(x=>n.push(`<div class="notice"><b>${esc(x.nome)} — ${money(x.valor)}</b><small>Gasto pendente • ${esc(x.tipo||"Loja")}</small></div>`));db.os.filter(x=>!["Entregue"].includes(x.status)).forEach(x=>n.push(`<div class="notice"><b>OS ${esc(x.aparelho)} — ${esc(x.status)}</b><small>${esc(x.cliente)} • ${esc(x.servico)}</small></div>`));noticeList.innerHTML=n.join("")||'<div class="notice">Nenhuma pendência no momento.</div>';document.querySelector(".bell").classList.toggle("has-notice",n.length>0)}
+function showHistory(){let txt=db.historico.length?db.historico.slice(0,30).map(x=>`${x.data} — ${x.texto}`).join("\n\n"):"Nenhuma movimentação registrada ainda.";alert(txt)}
+function exportBackup(){let blob=new Blob([JSON.stringify(db,null,2)],{type:"application/json"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`lander-backup-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(a.href)}
+function restoreBackup(e){let f=e.target.files[0];if(!f)return;let r=new FileReader();r.onload=()=>{try{let x=JSON.parse(r.result);if(!x.gastos||!x.pecas)throw 0;if(confirm("Restaurar este backup e substituir os dados atuais?")){db=x;db.os=db.os||[];db.historico=db.historico||[];persist("Backup restaurado");toggleMenu()}}catch{alert("Arquivo de backup inválido")}};r.readAsText(f);e.target.value=""}
+let editingOS=null,osParts=[];
+function openOS(i=null){editingOS=i;osParts=[];osForm.reset();osMaoObra.value=0;osModalTitle.textContent=i===null?"Nova ordem de serviço":"Editar ordem de serviço";if(i!==null){let x=db.os[i];osCliente.value=x.cliente;osTelefone.value=x.telefone||"";osAparelho.value=x.aparelho;osSerial.value=x.serial||"";osDefeito.value=x.defeito;osServico.value=x.servico;osMaoObra.value=x.maoObra||0;osStatus.value=x.status;osParts=(x.pecas||[]).map(y=>({...y}))}renderSelectedParts();osPartResults.innerHTML="";osModal.showModal()}
+function searchOSParts(){let q=osPartSearch.value.toLowerCase().trim();if(!q){osPartResults.innerHTML="";return}let arr=db.pecas.map((x,i)=>({...x,_i:i})).filter(x=>(x.nome+" "+x.cat).toLowerCase().includes(q)).slice(0,12);osPartResults.innerHTML=arr.map(x=>`<div class="part-option"><span>${esc(x.nome)} • ${money(x.valor)}</span><button type="button" onclick="addOSPart(${x._i})">Adicionar</button></div>`).join("")||'<div class="part-option">Nenhuma peça encontrada</div>'}
+function addOSPart(i){let x=db.pecas[i];osParts.push({nome:x.nome,custo:Number(x.valor),cat:x.cat});osPartSearch.value="";osPartResults.innerHTML="";renderSelectedParts()}
+function removeOSPart(i){osParts.splice(i,1);renderSelectedParts()}
+function renderSelectedParts(){osSelectedParts.innerHTML=osParts.map((x,i)=>`<div class="selected-part"><span>${esc(x.nome)} — ${money(x.custo)}</span><button type="button" onclick="removeOSPart(${i})">×</button></div>`).join("")}
+function saveOS(e){e.preventDefault();if(!osForm.reportValidity())return;let item={cliente:osCliente.value.trim(),telefone:osTelefone.value.trim(),aparelho:osAparelho.value.trim(),serial:osSerial.value.trim(),defeito:osDefeito.value.trim(),servico:osServico.value.trim(),maoObra:+osMaoObra.value||0,pecas:osParts,status:osStatus.value,data:new Date().toLocaleDateString("pt-BR")};if(editingOS===null)db.os.push(item);else db.os[editingOS]=item;osModal.close();persist(`${editingOS===null?"OS criada":"OS editada"}: ${item.cliente} — ${item.aparelho}`)}
+function finishOS(i){let x=db.os[i];if(x.lancada)return alert("O lucro desta OS já foi lançado.");let custo=(x.pecas||[]).reduce((a,p)=>a+Number(p.custo||0),0),valor=Number(x.maoObra||0);if(valor<=0)return alert("Informe o valor cobrado na OS antes de concluir.");db.movimentos.push({nome:`OS - ${x.aparelho} - ${x.servico}`,tipo:"reparo",custo,valor});x.lancada=true;x.status="Entregue";persist(`OS concluída e lucro lançado: ${x.cliente} — ${x.aparelho}`)}
+function deleteOS(i){if(confirm("Excluir esta ordem de serviço?")){let x=db.os[i];db.os.splice(i,1);persist(`OS excluída: ${x.cliente} — ${x.aparelho}`)}}
+function renderOS(){if(!document.getElementById("osList"))return;osList.innerHTML=db.os.map((x,i)=>{let pc=(x.pecas||[]).reduce((a,p)=>a+Number(p.custo||0),0);return `<div class="os-card"><h3>${esc(x.cliente)} — ${esc(x.aparelho)}</h3><div class="os-meta"><b>Status:</b> ${esc(x.status)}<br><b>Defeito:</b> ${esc(x.defeito)}<br><b>Serviço:</b> ${esc(x.servico)}<br><b>Peças:</b> ${(x.pecas||[]).map(p=>esc(p.nome)).join(", ")||"Nenhuma"}<br><b>Custo das peças:</b> ${money(pc)}</div><div class="os-total">Valor cobrado: ${money(x.maoObra)}</div><div class="os-actions"><button onclick="openOS(${i})">Editar</button><button onclick="finishOS(${i})">${x.lancada?"Lançado":"Concluir"}</button><button onclick="deleteOS(${i})">Excluir</button></div></div>`}).join("")||'<div class="row">Nenhuma OS cadastrada.</div>'}
+if(localStorage.getItem("lander_quick_hidden")==="1"){quick.classList.add("collapsed");document.querySelector(".quick-toggle").textContent="⌄"}
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js?v=107");
 render();
 
 </script>
