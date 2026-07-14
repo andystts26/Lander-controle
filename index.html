@@ -3,133 +3,161 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#07111f">
+<meta name="theme-color" content="#000000">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon.svg">
 <title>Lander Controle</title>
-
 <style>
-:root{--blue:#0788ff;--green:#16df7d;--purple:#8547ff;--text:#fff;--muted:#b5c0cf}
+:root{--blue:#0788ff;--green:#00d96b;--purple:#8247ff;--silver:#b9c2cf}
 *{box-sizing:border-box}
-html,body{margin:0;min-height:100%;background:#010409}
-body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background-image:linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.18)),url("lander-bg.jpeg");background-size:100% auto;background-position:center top;background-repeat:repeat-y}
-header{height:390px;background:transparent;padding:0;position:relative}
-.brand{position:absolute;inset:28px 70px 0;background:url("lander-logo.jpeg") center/contain no-repeat;font-size:0}
-.brand span,.sub{display:none}
-main{padding:0 20px 145px;max-width:860px;margin:auto}
-.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.card{position:relative;min-height:212px;padding:28px 20px 42px;background:linear-gradient(145deg,rgba(2,12,21,.90),rgba(2,8,14,.82));border:1px solid rgba(112,156,195,.58);border-radius:22px;box-shadow:0 8px 26px #000a;overflow:hidden}
-.card:before{content:"";display:block;width:64px;height:64px;border:2px solid var(--blue);border-radius:50%;margin-bottom:18px;box-shadow:0 0 13px rgba(7,136,255,.34)}
-.card:after{content:"";position:absolute;left:22px;right:22px;bottom:18px;height:35px;background:linear-gradient(165deg,transparent 46%,var(--blue) 47%,var(--blue) 50%,transparent 51%) 0 0/48px 22px;opacity:.85;filter:drop-shadow(0 0 4px var(--blue))}
-.card small{display:block;color:#b8c3d1;font-size:14px;font-weight:750;text-transform:uppercase;white-space:nowrap}
-.money{font-size:31px;font-weight:850;margin-top:10px;white-space:nowrap}
-.card:nth-child(4):before{border-color:var(--green);box-shadow:0 0 14px rgba(22,223,125,.45)}
-.card:nth-child(4):after{background:linear-gradient(165deg,transparent 46%,var(--green) 47%,var(--green) 50%,transparent 51%) 0 0/48px 22px;filter:drop-shadow(0 0 4px var(--green))}
-.card:nth-child(5):before{border-color:var(--purple);box-shadow:0 0 14px rgba(133,71,255,.5)}
-.card:nth-child(5):after{background:linear-gradient(165deg,transparent 46%,var(--purple) 47%,var(--purple) 50%,transparent 51%) 0 0/48px 22px;filter:drop-shadow(0 0 4px var(--purple))}
-.section{margin-top:64px}.section h2{margin:0 0 20px;font-size:25px;text-transform:uppercase}.section h2:before{content:"◢";color:var(--blue);margin-right:10px}
-button.primary{width:100%;min-height:122px;margin:0;background:linear-gradient(145deg,rgba(2,12,21,.95),rgba(2,8,14,.88));border:1px solid var(--blue);border-radius:21px;color:#fff;font-size:21px;font-weight:850;text-align:left;padding:18px 22px;box-shadow:0 7px 25px #000a}
-button.primary:before{content:"＋";display:inline-grid;place-items:center;width:68px;height:68px;border:2px solid var(--blue);border-radius:50%;margin-right:24px;color:var(--blue);font-size:42px;vertical-align:middle;box-shadow:0 0 12px rgba(7,136,255,.28)}
-.row{display:flex;align-items:center;justify-content:space-between;background:rgba(2,10,18,.92);border:1px solid #31658f;padding:18px;border-radius:18px;margin:10px 0;gap:10px}.row b{display:block}.row small{color:var(--muted)}.right{text-align:right}.pill{font-size:11px;padding:5px 8px;border-radius:999px;background:#17314e;color:#a9d4ff}
-nav{position:fixed;left:20px;right:20px;bottom:14px;z-index:20;display:grid;grid-template-columns:repeat(5,1fr);padding:11px 5px calc(11px + env(safe-area-inset-bottom));background:rgba(2,9,16,.96);border:1px solid rgba(106,151,190,.64);border-radius:29px;box-shadow:0 12px 34px #000}
-nav button{background:none;border:0;color:#a1adbc;font-size:11px;padding:8px 1px}nav button:before{display:block;font-size:27px;margin-bottom:5px}
-nav button:nth-child(1):before{content:"⌂"}nav button:nth-child(2):before{content:"＄"}nav button:nth-child(3):before{content:"▣"}nav button:nth-child(4):before{content:"◇"}nav button:nth-child(5):before{content:"♙"}nav button.active{color:var(--blue);font-weight:800}
+html,body{margin:0;min-height:100%;background:#000;color:#fff;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+body{background:#000 url("lander-bg.jpeg") center top/100% auto no-repeat}
+.hero{height:353px;position:relative}
+.menu,.bell{position:absolute;top:36px;width:66px;height:66px;border:1px solid #25384c;border-radius:16px;background:rgba(2,8,14,.88);display:grid;place-items:center;box-shadow:0 6px 20px #000b}
+.menu{left:31px}.bell{right:31px}.menu svg,.bell svg{width:31px;height:31px;fill:none;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.bell:after{content:"";position:absolute;right:13px;top:13px;width:9px;height:9px;background:var(--blue);border-radius:50%}
+main{width:100%;max-width:710px;margin:auto;padding:0 31px 143px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px 17px}
+.card{height:181px;position:relative;border:1px solid #30475e;border-radius:20px;background:linear-gradient(145deg,rgba(3,13,22,.97),rgba(1,7,12,.93));box-shadow:0 7px 20px #000b;padding:28px 8px 15px 104px;overflow:hidden}
+.card-icon{position:absolute;left:20px;top:31px;width:72px;height:72px;border:2px solid var(--blue);border-radius:50%;display:grid;place-items:center;box-shadow:0 0 10px rgba(7,136,255,.28)}
+.card-icon svg{width:43px;height:43px;fill:none;stroke:var(--blue);stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.card small{display:block;color:#bec5cf;font-size:13px;font-weight:650;text-transform:uppercase;white-space:nowrap;line-height:1.1;margin-top:7px;letter-spacing:-.45px;width:100%;max-width:none;overflow:visible;text-overflow:unset}
+.money{font-size:29px;font-weight:850;margin-top:13px;white-space:nowrap;letter-spacing:-.6px}
+.spark{position:absolute;left:20px;right:20px;bottom:18px;height:42px}
+.spark svg{width:100%;height:100%;overflow:visible}.spark polyline{fill:none;stroke:var(--blue);stroke-width:1.8;filter:drop-shadow(0 0 3px var(--blue))}
+.card.green .card-icon{border-color:var(--green);box-shadow:0 0 10px rgba(0,217,107,.34)}.card.green .card-icon svg{stroke:var(--green)}.card.green .spark polyline{stroke:var(--green);filter:drop-shadow(0 0 3px var(--green))}
+.card.purple .card-icon{border-color:var(--purple);box-shadow:0 0 10px rgba(130,71,255,.38)}.card.purple .card-icon svg{stroke:var(--purple)}.card.purple .spark polyline{stroke:var(--purple);filter:drop-shadow(0 0 3px var(--purple))}
+.quick{margin-top:95px}.quick h2{font-size:24px;margin:0 0 20px;text-transform:uppercase}.quick h2:before{content:"◢";color:var(--blue);font-size:21px;margin-right:9px}
+.action{width:100%;height:108px;margin:0 0 15px;position:relative;display:flex;align-items:center;padding:0 65px 0 125px;border:1px solid #126bb8;border-radius:18px;background:linear-gradient(145deg,rgba(2,12,21,.98),rgba(1,7,12,.95));color:#fff;text-align:left;box-shadow:0 7px 20px #000a}
+.plus{position:absolute;left:27px;top:19px;width:68px;height:68px;border:2px solid var(--blue);border-radius:50%;display:grid;place-items:center;color:var(--blue);font-size:43px;font-weight:300;box-shadow:0 0 10px rgba(7,136,255,.25)}
+.copy{display:flex;flex-direction:column;gap:10px;font-size:20px;font-weight:800;line-height:1}.copy small{font-size:14px;font-weight:450;color:#aeb8c6}.chev{position:absolute;right:31px;top:50%;transform:translateY(-54%);font-size:55px;font-weight:250;color:#aeb8c6}
 .view{display:none}.view.active{display:block}
-input,select{width:100%;background:#06111d;border:1px solid #29445f;color:white;border-radius:12px;padding:13px;margin:5px 0 10px;font-size:16px}label{font-size:12px;color:var(--muted)}
-dialog{width:min(92%,520px);border:1px solid #2b6ca5;border-radius:20px;background:#07111f;color:white;padding:18px}dialog::backdrop{background:#000b}.actions{display:flex;gap:8px;margin-top:8px}.actions button{flex:1;padding:12px;border:0;border-radius:11px;font-weight:800}.secondary{background:#26384b;color:white}
+.list-title{margin:28px 0 14px;font-size:24px}.row{display:flex;align-items:center;justify-content:space-between;background:rgba(2,10,18,.94);border:1px solid #315f85;padding:18px;border-radius:18px;margin:10px 0;gap:10px}.row b{display:block}.row small{color:#aeb8c6}.right{text-align:right}.pill{font-size:11px;padding:5px 8px;border-radius:999px;background:#17314e;color:#a9d4ff}
+input,select{width:100%;background:#06111d;border:1px solid #29445f;color:white;border-radius:12px;padding:13px;margin:5px 0 10px;font-size:16px}label{font-size:12px;color:#aeb8c6}
+dialog{width:min(92%,520px);border:1px solid #2b6ca5;border-radius:20px;background:#07111f;color:white;padding:18px}dialog::backdrop{background:#000b}.actions{display:flex;gap:8px;margin-top:8px}.actions button{flex:1;padding:12px;border:0;border-radius:11px;font-weight:800}.secondary{background:#26384b;color:white}.save{background:var(--blue);color:#fff}
+nav{position:fixed;left:22px;right:22px;bottom:14px;z-index:20;height:116px;display:grid;grid-template-columns:repeat(5,1fr);padding:17px 5px calc(10px + env(safe-area-inset-bottom));background:rgba(2,9,16,.97);border:1px solid #405367;border-radius:29px;box-shadow:0 12px 34px #000}
+nav button{background:none;border:0;color:#9da8b7;font-size:12px;padding:3px 1px}.nav-icon{display:block;width:32px;height:32px;margin:0 auto 8px}.nav-icon svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}.product-add{height:92px;margin-bottom:16px}.product-add .plus{width:56px;height:56px;top:17px;font-size:36px}.product-add .copy{font-size:17px}
+.product-right{text-align:right;min-width:92px}.product-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:8px}.product-actions button{width:34px;height:30px;border:1px solid #315f85;border-radius:9px;background:#071522;color:#9dcbff;font-size:18px}
+nav button.active{color:var(--blue);font-weight:800}nav button.active.home .nav-icon svg{fill:var(--blue);stroke:var(--blue)}
 @media(max-width:430px){
- header{height:360px}.brand{inset:15px 48px 0}
- main{padding-left:14px;padding-right:14px}
- .grid{gap:10px}.card{min-height:186px;padding:22px 14px 37px;border-radius:19px}
- .card:before{width:56px;height:56px;margin-bottom:14px}.card small{font-size:11.5px}.money{font-size:25px}
- .section{margin-top:50px}.section h2{font-size:22px}
- button.primary{min-height:104px;font-size:17px;padding:14px}button.primary:before{width:56px;height:56px;font-size:35px;margin-right:13px}
- nav{left:14px;right:14px}
+.hero{height:353px}main{padding-left:18px;padding-right:18px}.menu{left:18px}.bell{right:18px}
+.grid{gap:10px}.card{height:181px;padding:27px 5px 15px 86px;border-radius:19px}.card-icon{left:16px;top:31px;width:64px;height:64px}.card-icon svg{width:39px;height:39px}.card small{font-size:9.7px;letter-spacing:-.55px}.money{font-size:24px;margin-top:12px}.spark{left:16px;right:16px}
+.quick{margin-top:88px}.quick h2{font-size:21px}.action{height:108px;padding-left:105px;padding-right:50px}.plus{left:20px;width:64px;height:64px;top:21px}.copy{font-size:16px}.copy small{font-size:12px}.chev{right:22px}nav{left:14px;right:14px;height:112px}
 }
 
-.dash-icon{display:grid;width:64px;height:64px;border:2px solid var(--blue);border-radius:50%;place-items:center;margin-bottom:18px;box-shadow:0 0 14px rgba(7,136,255,.35)}
-.dash-icon svg{width:38px;height:38px;fill:none;stroke:var(--blue);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-.card:before{display:none!important}
-.card:nth-child(4) .dash-icon{border-color:var(--green);box-shadow:0 0 14px rgba(22,223,125,.45)}
-.card:nth-child(4) .dash-icon svg{stroke:var(--green)}
-.card:nth-child(5) .dash-icon{border-color:var(--purple);box-shadow:0 0 14px rgba(133,71,255,.5)}
-.card:nth-child(5) .dash-icon svg{stroke:var(--purple)}
-.card:after{height:42px!important;background:none!important;filter:none!important;border:0!important;opacity:1!important}
-.card .money:after{content:"";position:absolute;left:20px;right:20px;bottom:18px;height:42px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 280 42'%3E%3Cpolyline points='0,35 28,28 52,31 78,14 103,27 132,22 158,31 188,20 215,23 244,12 280,9' fill='none' stroke='%230788ff' stroke-width='2'/%3E%3C/svg%3E") center/100% 100% no-repeat;filter:drop-shadow(0 0 4px #0788ff)}
-.card:nth-child(4) .money:after{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 280 42'%3E%3Cpolyline points='0,35 28,28 52,31 78,14 103,27 132,22 158,31 188,20 215,23 244,12 280,9' fill='none' stroke='%2316df7d' stroke-width='2'/%3E%3C/svg%3E");filter:drop-shadow(0 0 4px #16df7d)}
-.card:nth-child(5) .money:after{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 280 42'%3E%3Cpolyline points='0,35 28,28 52,31 78,14 103,27 132,22 158,31 188,20 215,23 244,12 280,9' fill='none' stroke='%238547ff' stroke-width='2'/%3E%3C/svg%3E");filter:drop-shadow(0 0 4px #8547ff)}
-button.primary{position:relative;padding-right:65px}
-button.primary:after{content:"›";position:absolute;right:22px;top:50%;transform:translateY(-50%);font-size:54px;font-weight:300;color:#aeb9c8}
-button.primary:nth-of-type(1){font-size:0}
-button.primary:nth-of-type(1):after{content:"›"}
-button.primary:nth-of-type(1)::first-line{font-size:0}
-#home .section button.primary:nth-of-type(1){font-size:0}
-#home .section button.primary:nth-of-type(1):before{font-size:42px}
-#home .section button.primary:nth-of-type(1){color:#fff}
-#home .section button.primary:nth-of-type(1){--action-title:"NOVO GASTO";--action-sub:"Registrar uma nova despesa"}
-#home .section button.primary:nth-of-type(2){--action-title:"NOVO SERVIÇO OU PRODUTO";--action-sub:"Adicionar serviço ou produto";font-size:0}
-#home .section button.primary span{display:none}
-#home .section button.primary{display:flex;align-items:center}
-#home .section button.primary:before{flex:0 0 auto}
-#home .section button.primary{font-size:0}
-#home .section button.primary{line-height:1}
-#home .section button.primary::after{font-size:54px}
-#home .section button.primary{background-image:linear-gradient(145deg,rgba(2,12,21,.96),rgba(2,8,14,.90))}
-#home .section button.primary{counter-increment:action}
-#home .section button.primary{position:relative}
-#home .section button.primary{font-weight:850}
-#home .section button.primary{white-space:normal}
-#home .section button.primary{justify-content:flex-start}
-#home .section button.primary{overflow:hidden}
-#home .section button.primary{isolation:isolate}
-#home .section button.primary{color:transparent}
-#home .section button.primary:before{color:var(--blue)}
-#home .section button.primary::after{color:#aeb9c8}
-#home .section button.primary{ text-shadow:none }
-#home .section button.primary{ }
-#home .section button.primary:nth-of-type(1){ }
-#home .section button.primary:nth-of-type(1){ }
-.action-copy{display:flex;flex-direction:column;gap:8px;color:#fff;font-size:18px;line-height:1.1}
-.action-copy small{color:#aeb9c8;font-size:13px;font-weight:500}
-.nav-icon{display:block;width:28px;height:28px;margin:0 auto 5px}
-.nav-icon svg{width:100%;height:100%;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
-nav button:before{display:none!important}
-@media(max-width:430px){.dash-icon{width:56px;height:56px}.dash-icon svg{width:32px;height:32px}.action-copy{font-size:15px}.action-copy small{font-size:11px}}
+.card:nth-child(1) small{font-size:12px}
+.card:nth-child(2) small{font-size:11.2px}
+.card:nth-child(3) small{font-size:10.8px}
+.card:nth-child(4) small{font-size:11.7px}
+.card:nth-child(5) small{font-size:12px}
+@media(max-width:430px){
+.card:nth-child(1) small{font-size:9.2px}
+.card:nth-child(2) small{font-size:8.5px}
+.card:nth-child(3) small{font-size:8.15px}
+.card:nth-child(4) small{font-size:8.8px}
+.card:nth-child(5) small{font-size:9.3px}
+}
+
+
+/* V4 — geometria travada na referência 710 × 1536 */
+@media (min-width:431px){
+  main{width:710px;max-width:710px;padding-left:31px;padding-right:31px}
+  .hero{width:710px;height:353px;margin:0 auto}
+  .grid{grid-template-columns:315px 315px;column-gap:17px;row-gap:15px}
+  .card{width:315px;height:181px;border-radius:20px;padding:28px 8px 15px 111px}
+  .card-icon{left:20px;top:31px;width:72px;height:72px}
+  .card-icon svg{width:43px;height:43px}
+  .card small{font-size:15px;letter-spacing:-.35px}
+  .card:nth-child(1) small{font-size:15px}
+  .card:nth-child(2) small{font-size:14.3px}
+  .card:nth-child(3) small{font-size:13.2px}
+  .card:nth-child(4) small{font-size:14.6px}
+  .card:nth-child(5) small{font-size:15px}
+  .money{font-size:29px;margin-top:13px}
+  .spark{left:20px;right:20px;bottom:18px;height:42px}
+  .quick{margin-top:95px}
+  .quick h2{font-size:24px;margin-bottom:20px}
+  .action{width:648px;height:108px;border-radius:18px;margin-bottom:15px;padding-left:125px;padding-right:65px}
+  .plus{left:27px;top:19px;width:68px;height:68px}
+  .copy{font-size:20px}.copy small{font-size:14px}
+  nav{width:666px;left:50%;right:auto;transform:translateX(-50%);height:116px;bottom:14px;border-radius:29px}
+}
+@media (max-width:430px){
+  body{background-size:100% auto;background-position:center top}
+  .hero{height:214px}
+  main{padding:0 15px 126px}
+  .grid{grid-template-columns:calc((100vw - 40px)/2) calc((100vw - 40px)/2);gap:9px 10px}
+  .card{width:calc((100vw - 40px)/2);height:111px;border-radius:13px;padding:17px 4px 9px 70px}
+  .card-icon{left:12px;top:19px;width:45px;height:45px}
+  .card-icon svg{width:27px;height:27px}
+  .card small{margin-top:4px;line-height:1.05;letter-spacing:-.35px}
+  .card:nth-child(1) small{font-size:8.6px}
+  .card:nth-child(2) small{font-size:8.1px}
+  .card:nth-child(3) small{font-size:7.5px}
+  .card:nth-child(4) small{font-size:8.2px}
+  .card:nth-child(5) small{font-size:8.7px}
+  .money{font-size:16.5px;margin-top:8px;letter-spacing:-.35px}
+  .spark{left:12px;right:12px;bottom:10px;height:26px}
+  .quick{margin-top:57px}
+  .quick h2{font-size:15px;margin-bottom:12px}
+  .quick h2:before{font-size:13px;margin-right:6px}
+  .action{height:66px;border-radius:12px;margin-bottom:10px;padding:0 42px 0 77px}
+  .plus{left:17px;top:12px;width:42px;height:42px;font-size:28px}
+  .copy{font-size:12.5px;gap:6px}.copy small{font-size:8.5px}
+  .chev{right:19px;font-size:35px}
+  nav{left:14px;right:14px;bottom:9px;height:76px;border-radius:19px;padding:10px 3px calc(6px + env(safe-area-inset-bottom))}
+  nav button{font-size:8px}
+  .nav-icon{width:21px;height:21px;margin-bottom:5px}
+}
 
 </style>
 </head>
 <body>
-<header><div class="brand">LANDER <span>CONTROLE</span></div><div class="sub">Controle interno • Lander iPhones</div></header>
+<div class="hero">
+<div class="menu"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></div>
+<div class="bell"><svg viewBox="0 0 24 24"><path d="M6 9a6 6 0 0 1 12 0v5l2 3H4l2-3z"/><path d="M10 20h4"/></svg></div>
+</div>
 <main>
 <section id="inicio" class="view active">
 <div class="grid">
-<div class="card"><span class="dash-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M4 22c0-5 3-8 8-8s8 3 8 8"/></svg></span><span class="dash-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v8M15 5.5c0-1.4-1.3-2.2-3-2.2S9 4.1 9 5.5s1.4 2.1 3 2.1 3 .8 3 2.2-1.3 2.2-3 2.2"/><path d="M3 16h4l2-2h5.5c1.2 0 2 .8 2 1.8 0 .5-.2.9-.5 1.2H12"/><path d="M3 16v5h4l3-1h6l5-4c.7-.6.7-1.6.1-2.2-.5-.5-1.3-.6-1.9-.2L16 15.5"/></svg></span><span class="dash-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M4 22c0-5 3-8 8-8s8 3 8 8"/></svg></span><span class="dash-icon"><svg viewBox="0 0 24 24"><path d="M12 2v20M16 6c0-2-2-3-4-3S8 4 8 6s2 3 4 3 4 1 4 3-2 3-4 3-4-1-4-3"/><path d="M4 18c3 3 13 3 16 0"/></svg></span><span class="dash-icon"><svg viewBox="0 0 24 24"><path d="M3 4h2l2 11h10l2-7H7"/><circle cx="9" cy="19" r="1.5"/><circle cx="17" cy="19" r="1.5"/></svg></span><small>Gastos da loja</small><div class="money" id="gastosTotal"></div></div>
-<div class="card"><small>Crediário a receber</small><div class="money" id="crediarioTotal"></div></div>
-<div class="card"><small>Dívida pessoal à loja</small><div class="money" id="dividaTotal"></div></div>
-<div class="card"><small>Lucro Anderson</small><div class="money" id="lucroA"></div></div>
-<div class="card"><small>Lucro Ryan</small><div class="money" id="lucroR"></div></div>
+<div class="card"><span class="card-icon"><svg viewBox="0 0 24 24"><path d="M2.5 4h2.5l2.2 10.2h10.2l2.2-7.2H6"/><path d="M8 10h10M10 7v7M15 7v7"/><circle cx="9" cy="18.5" r="1.5"/><circle cx="17" cy="18.5" r="1.5"/></svg></span><small>Gastos da loja</small><div class="money" id="gastosTotal"></div><div class="spark"><svg viewBox="0 0 280 42"><polyline points="0,34 27,27 51,31 77,15 102,27 130,22 157,31 187,20 214,23 243,13 280,9"/></svg></div></div>
+<div class="card"><span class="card-icon"><svg viewBox="0 0 24 24"><path d="M12 2v10M15 5c0-1.5-1.4-2.5-3-2.5S9 3.5 9 5s1.4 2.3 3 2.3 3 .9 3 2.4-1.4 2.4-3 2.4"/><path d="M3 16h4l2-2h5.5c1.3 0 2.2.8 2.2 1.9 0 .6-.3 1.1-.8 1.5H12"/><path d="M3 16v5h4l3-1h6l5-4c.8-.6.8-1.7.2-2.3-.5-.5-1.4-.6-2-.2l-3.2 2"/></svg></span><small>Crediário a receber</small><div class="money" id="crediarioTotal"></div><div class="spark"><svg viewBox="0 0 280 42"><polyline points="0,34 27,27 51,31 77,15 102,27 130,22 157,31 187,20 214,23 243,13 280,9"/></svg></div></div>
+<div class="card"><span class="card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M4 22c0-5.2 3-8.2 8-8.2s8 3 8 8.2"/></svg></span><small>Dívida pessoal à loja</small><div class="money" id="dividaTotal"></div><div class="spark"><svg viewBox="0 0 280 42"><polyline points="0,34 27,27 51,31 77,15 102,27 130,22 157,31 187,20 214,23 243,13 280,9"/></svg></div></div>
+<div class="card green"><span class="card-icon"><svg viewBox="0 0 24 24"><path d="M4 20v-5h4v5M10 20v-8h4v8M16 20V8h4v12"/><path d="M3 11l6-5 4 3 8-7"/><path d="M17 2h4v4"/></svg></span><small>Lucro Anderson</small><div class="money" id="lucroA"></div><div class="spark"><svg viewBox="0 0 280 42"><polyline points="0,34 27,27 51,31 77,15 102,27 130,22 157,31 187,20 214,23 243,13 280,9"/></svg></div></div>
+<div class="card purple"><span class="card-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="7" r="4"/><path d="M4 22c0-5.2 3-8.2 8-8.2s8 3 8 8.2"/></svg></span><small>Lucro Ryan</small><div class="money" id="lucroR"></div><div class="spark"><svg viewBox="0 0 280 42"><polyline points="0,34 27,27 51,31 77,15 102,27 130,22 157,31 187,20 214,23 243,13 280,9"/></svg></div></div>
 </div>
-<div class="section"><h2>Ações rápidas</h2><button class="primary" onclick="openModal('gasto')"><span class="action-copy">NOVO GASTO<small>Registrar uma nova despesa</small></span></button><br><br><button class="primary" onclick="openModal('servico')"><span class="action-copy">NOVO SERVIÇO OU PRODUTO<small>Adicionar serviço ou produto</small></span></button></div>
+<div class="quick"><h2>Ações rápidas</h2>
+<button class="action" onclick="openModal('gasto')"><span class="plus">＋</span><span class="copy">NOVO GASTO<small>Registrar uma nova despesa</small></span><span class="chev">›</span></button>
+<button class="action" onclick="openModal('servico')"><span class="plus">＋</span><span class="copy">NOVO SERVIÇO OU PRODUTO<small>Adicionar serviço ou produto</small></span><span class="chev">›</span></button>
+</div>
 </section>
-
-<section id="gastos" class="view"><div class="section"><h2>Gastos da loja</h2><div id="gastosList"></div></div></section>
-<section id="credito" class="view"><div class="section"><h2>Crediário em aberto</h2><div id="creditoList"></div></div></section>
-<section id="pecas" class="view"><div class="section"><h2>Peças e telas</h2><input id="busca" placeholder="Buscar modelo, categoria ou tela..." oninput="renderPecas()"><div id="pecasList"></div></div></section>
-<section id="socios" class="view"><div class="section"><h2>Sócios</h2><div id="sociosList"></div></div></section>
+<section id="gastos" class="view"><h2 class="list-title">Gastos da loja</h2><div id="gastosList"></div></section>
+<section id="credito" class="view"><h2 class="list-title">Crediário em aberto</h2><div id="creditoList"></div></section>
+<section id="pecas" class="view">
+<h2 class="list-title">Peças e telas</h2>
+<button class="action product-add" onclick="openProductModal()"><span class="plus">＋</span><span class="copy">ADICIONAR PRODUTO<small>Cadastrar uma nova peça ou tela</small></span><span class="chev">›</span></button>
+<input id="busca" placeholder="Buscar modelo, categoria ou tela..." oninput="renderPecas()">
+<div id="pecasList"></div>
+</section>
+<section id="socios" class="view"><h2 class="list-title">Sócios</h2><div id="sociosList"></div></section>
 </main>
 <nav>
-<button class="active" onclick="show('inicio',this)"><span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M2 20c0-4 2-7 6-7s6 3 6 7M12 20c0-3 2-6 5-6s5 3 5 6"/></svg></span><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4zM3 7v10l9 4 9-4V7M12 11v10"/></svg></span><span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8" cy="10" r="2"/><path d="M5 16c1-2 5-2 6 0M14 9h4M14 13h4"/></svg></span><span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15 8c0-1.5-1.5-2.5-3-2.5S9 6.5 9 8s1.5 2.2 3 2.5 3 1 3 2.5-1.5 2.5-3 2.5S9 14.5 9 13"/><path d="M12 4v16"/></svg></span><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v10h-6v-6H9v6H3z"/></svg></span>Início</button>
-<button onclick="show('gastos',this)">Gastos</button>
-<button onclick="show('credito',this)">Crediário</button>
-<button onclick="show('pecas',this)">Peças</button>
-<button onclick="show('socios',this)">Sócios</button>
+<button class="active home" onclick="show('inicio',this)"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v10h-6v-6H9v6H3z"/></svg></span>INÍCIO</button>
+<button onclick="show('gastos',this)"><span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15 8c0-1.5-1.5-2.5-3-2.5S9 6.5 9 8s1.5 2.2 3 2.5 3 1 3 2.5-1.5 2.5-3 2.5S9 14.5 9 13M12 4v16"/></svg></span>GASTOS</button>
+<button onclick="show('credito',this)"><span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8" cy="10" r="2"/><path d="M5 16c1-2 5-2 6 0M14 9h4M14 13h4"/></svg></span>CREDIÁRIO</button>
+<button onclick="show('pecas',this)"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4zM3 7v10l9 4 9-4V7M12 11v10"/></svg></span>PEÇAS</button>
+<button onclick="show('socios',this)"><span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M2 20c0-4 2-7 6-7s6 3 6 7M12 20c0-3 2-6 5-6s5 3 5 6"/></svg></span>SÓCIOS</button>
 </nav>
-
-<dialog id="modal"><form method="dialog" id="form">
-<h2 id="modalTitle"></h2><div id="fields"></div>
-<div class="actions"><button class="secondary" value="cancel">Cancelar</button><button class="primary" value="default" onclick="saveEntry(event)">Salvar</button></div>
-</form></dialog>
-
+<dialog id="modal"><form method="dialog" id="form"><h2 id="modalTitle"></h2><div id="fields"></div><div class="actions"><button class="secondary" value="cancel">Cancelar</button><button class="save" value="default" onclick="saveEntry(event)">Salvar</button></div></form></dialog>
+<dialog id="productModal">
+<form method="dialog" id="productForm">
+<h2 id="productModalTitle">Adicionar produto</h2>
+<label>Nome do produto</label><input id="pNome" required>
+<label>Categoria</label><input id="pCat" placeholder="Ex.: COMUM, OLED, SOFT OLED, FHD" required>
+<label>Valor</label><input id="pValor" type="number" step=".01" required>
+<label>Fornecedor</label><input id="pFornecedor" value="Mastter Peças">
+<div class="actions"><button class="secondary" value="cancel">Cancelar</button><button class="save" value="default" onclick="saveProduct(event)">Salvar</button></div>
+</form>
+</dialog>
 <script>
 const seed={
 gastos:[
@@ -160,15 +188,37 @@ creditoList.innerHTML=db.credito.map((x,i)=>`<div class="row" onclick="pay(${i})
 sociosList.innerHTML=`<div class="row"><div><b>Anderson</b><small>Dívida pessoal</small></div><b>${money(db.dividas.Anderson)}</b></div><div class="row"><div><b>Ryan</b><small>Dívida pessoal</small></div><b>${money(db.dividas.Ryan)}</b></div><div class="row"><div><b>Divisão de lucro</b><small>Serviços e produtos</small></div><b>50% / 50%</b></div>`;
 renderPecas()
 }
-function renderPecas(){let q=(document.getElementById("busca")?.value||"").toLowerCase();pecasList.innerHTML=db.pecas.filter(x=>(x.cat+" "+x.nome).toLowerCase().includes(q)).map(x=>`<div class="row"><div><b>${x.nome}</b><small>${x.cat} • Mastter Peças</small></div><b>${money(x.valor)}</b></div>`).join("")}
+function renderPecas(){
+ let q=(document.getElementById("busca")?.value||"").toLowerCase();
+ pecasList.innerHTML=db.pecas.map((x,i)=>({...x,_i:i}))
+ .filter(x=>(x.cat+" "+x.nome+" "+(x.fornecedor||"Mastter Peças")).toLowerCase().includes(q))
+ .map(x=>`<div class="row product-row"><div><b>${x.nome}</b><small>${x.cat} • ${x.fornecedor||"Mastter Peças"}</small></div><div class="product-right"><b>${money(x.valor)}</b><div class="product-actions"><button onclick="editProduct(${x._i})" aria-label="Editar">✎</button><button onclick="deleteProduct(${x._i})" aria-label="Excluir">×</button></div></div></div>`).join("")
+}
+let editingProductIndex=null;
+function openProductModal(){
+ editingProductIndex=null;productModalTitle.textContent="Adicionar produto";
+ pNome.value="";pCat.value="";pValor.value="";pFornecedor.value="Mastter Peças";productModal.showModal()
+}
+function editProduct(i){
+ editingProductIndex=i;let x=db.pecas[i];productModalTitle.textContent="Editar produto";
+ pNome.value=x.nome;pCat.value=x.cat;pValor.value=x.valor;pFornecedor.value=x.fornecedor||"Mastter Peças";productModal.showModal()
+}
+function saveProduct(e){
+ e.preventDefault();
+ let item={nome:pNome.value.trim(),cat:pCat.value.trim().toUpperCase(),valor:+pValor.value,fornecedor:pFornecedor.value.trim()||"Mastter Peças"};
+ if(!item.nome||!item.cat||!item.valor)return;
+ if(editingProductIndex===null)db.pecas.push(item);else db.pecas[editingProductIndex]=item;
+ productModal.close();persist()
+}
+function deleteProduct(i){
+ if(confirm(`Excluir ${db.pecas[i].nome}?`)){db.pecas.splice(i,1);persist()}
+}
 let mode="";
 function openModal(m){mode=m;modalTitle.textContent=m==="gasto"?"Novo gasto":"Novo serviço ou produto";fields.innerHTML=m==="gasto"?`<label>Descrição</label><input id="f1" required><label>Valor</label><input id="f2" type="number" step=".01" required><label>Status</label><select id="f3"><option>Pago</option><option>Pendente</option></select>`:`<label>Descrição</label><input id="f1" required><label>Custo</label><input id="f2" type="number" step=".01" required><label>Valor cobrado / venda</label><input id="f3" type="number" step=".01" required>`;modal.showModal()}
 function saveEntry(e){e.preventDefault();if(mode==="gasto")db.gastos.push({nome:f1.value,valor:+f2.value,status:f3.value,tipo:"Loja"});else db.movimentos.push({nome:f1.value,custo:+f2.value,valor:+f3.value});modal.close();persist()}
 function pay(i){let x=db.credito[i],v=prompt(`Pagamento de ${x.cliente}. Valor recebido:`);if(v&&+v>0){x.pago=Math.min(x.total,x.pago+(+v));persist()}}
-if("serviceWorker" in navigator){
-navigator.serviceWorker.register("sw.js?v=6").then(r=>{r.update();});
-navigator.serviceWorker.addEventListener("controllerchange",()=>{if(!sessionStorage.getItem("lander_reloaded")){sessionStorage.setItem("lander_reloaded","1");location.reload();}});
-}
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js?v=103");
 render();
+
 </script>
 </body></html>
