@@ -366,7 +366,7 @@ async function generateAndSharePDF(i){let x=db.os[i],{jsPDF}=window.jspdf,doc=ne
 
 function renderOS(){if(!document.getElementById("osList"))return;osList.innerHTML=db.os.map((x,i)=>{let pc=(x.pecas||[]).reduce((a,p)=>a+Number(p.custo||0),0);return `<div class="os-card"><h3>${esc(x.cliente)} — ${esc(x.aparelho)}</h3><div class="os-meta"><b>Status:</b> ${esc(x.status)}<br><b>CPF:</b> ${esc(x.cpf||"-")}<br><b>Endereço:</b> ${esc(x.rua||"-")} • ${esc(x.bairro||"-")}<br><b>IMEI / Serial:</b> ${esc(x.serial||"-")}<br><b>Defeito:</b> ${esc(x.defeito)}<br><b>Serviço:</b> ${esc(x.servico)}<br><b>Peças:</b> ${(x.pecas||[]).map(p=>esc(p.nome)).join(", ")||"Nenhuma"}<br><b>Custo das peças:</b> ${money(pc)}<br><b>Pagamento:</b> ${esc(x.pagamento||"Disponível quando ficar Pronto")}</div><div class="os-total">Valor cobrado: ${money(x.maoObra)}</div><div class="os-actions"><button onclick="openOS(${i})">Editar</button><button onclick="finishOS(${i})">${x.lancada?"PDF / WhatsApp":"Finalizar"}</button><button onclick="deleteOS(${i})">Excluir</button></div></div>`}).join("")||'<div class="row">Nenhuma OS cadastrada.</div>'}
 if(localStorage.getItem("lander_quick_hidden")==="1"){quick.classList.add("collapsed");document.querySelector(".quick-toggle").textContent="⌄"}
-if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js?v=113");
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js?v=114");
 render();
 
 </script>
@@ -504,6 +504,86 @@ function openCashPDV(){
  if(p){p.classList.add("active");renderCash();renderPDV()}
  window.scrollTo(0,0);
 }
+</script>
+
+<dialog id="osModal" class="modal">
+<form id="osForm" method="dialog" onsubmit="saveOS(event)">
+<h2 id="osModalTitle">Nova ordem de serviço</h2>
+<div class="form-grid">
+<label>Cliente<input id="osCliente" required></label>
+<label>CPF<input id="osCpf" inputmode="numeric"></label>
+<label>Telefone / WhatsApp<input id="osTelefone" inputmode="tel" required></label>
+<label>Rua<input id="osRua"></label>
+<label>Bairro<input id="osBairro"></label>
+<label>Aparelho<input id="osAparelho" required></label>
+<label>IMEI / Serial<div class="pdv-row"><input id="osSerial"><button type="button" class="small-btn" onclick="document.getElementById('imeiCamera').click()">📷</button></div></label>
+<input id="imeiCamera" type="file" accept="image/*" capture="environment" hidden onchange="readIMEI(event)">
+<small id="ocrStatus"></small>
+<label>Defeito relatado<textarea id="osDefeito" required></textarea></label>
+<label>Foto do aparelho<input id="devicePhoto" type="file" accept="image/*" capture="environment" onchange="loadDevicePhoto(event)"></label>
+<img id="devicePhotoPreview" style="display:none;max-width:100%;border-radius:14px">
+<label>Serviço a realizar<textarea id="osServico" required></textarea></label>
+<label>Pesquisar peça<input id="osPartSearch" oninput="searchOSParts()" placeholder="Digite o nome da peça"></label>
+<div id="osPartResults"></div><div id="selectedParts"></div>
+<label>Valor cobrado / mão de obra<input id="osMaoObra" type="number" min="0" step="0.01" value="0"></label>
+<label>Garantia<select id="osGarantia"><option>Sem garantia</option><option>30 dias</option><option>3 meses</option><option>6 meses</option></select></label>
+<label>Status<select id="osStatus" onchange="togglePayment()"><option>Recebido</option><option>Em análise</option><option>Em reparo</option><option>Pronto</option><option>Entregue</option></select></label>
+<label id="paymentWrap" style="display:none">Forma de pagamento<select id="osPagamento"><option>Dinheiro</option><option>Pix</option><option>Débito</option><option>Crédito</option></select></label>
+<label>Assinatura do cliente</label>
+<canvas id="signatureCanvas" width="700" height="220" style="width:100%;height:150px;background:#fff;border-radius:12px;touch-action:none"></canvas>
+<button type="button" class="secondary" onclick="clearSignature()">Limpar assinatura</button>
+</div>
+<div class="modal-actions"><button type="button" class="secondary" onclick="osModal.close()">Cancelar</button><button type="submit" class="primary">Salvar OS</button></div>
+</form></dialog>
+
+<script>
+function loadDevicePhoto(e){
+ const f=e.target.files&&e.target.files[0];if(!f)return;
+ const r=new FileReader();r.onload=()=>{devicePhotoPreview.src=r.result;devicePhotoPreview.style.display="block"};r.readAsDataURL(f);
+}
+async function readIMEI(e){
+ const f=e.target.files&&e.target.files[0];if(!f)return;
+ ocrStatus.textContent="Foto do IMEI adicionada. Digite ou confira o número no campo.";
+ try{
+  if(window.Tesseract){
+   ocrStatus.textContent="Lendo IMEI...";
+   const r=await Tesseract.recognize(f,"eng");
+   const m=(r.data.text||"").replace(/\D/g,"").match(/\d{15}/);
+   if(m)osSerial.value=m[0];
+   ocrStatus.textContent=m?"IMEI identificado. Confira o número.":"Não identifiquei automaticamente. Digite o IMEI.";
+  }
+ }catch(err){ocrStatus.textContent="Não identifiquei automaticamente. Digite o IMEI."}
+}
+function togglePayment(){
+ const w=document.getElementById("paymentWrap"),s=document.getElementById("osStatus");
+ if(w&&s)w.style.display=["Pronto","Entregue"].includes(s.value)?"block":"none";
+}
+function clearSignature(){
+ const c=document.getElementById("signatureCanvas");if(c)c.getContext("2d").clearRect(0,0,c.width,c.height);
+}
+(function(){
+ const views=()=>[...document.querySelectorAll(".view")];
+ window.openOnlyView=function(id){
+   views().forEach(v=>{v.classList.remove("active");v.style.display="none"});
+   const target=document.getElementById(id);
+   if(target){target.style.display="block";target.classList.add("active")}
+   const pdv=document.getElementById("pdvPanel");
+   if(pdv&&id!=="pdvPanel"){pdv.classList.remove("active");pdv.style.display="none"}
+   window.scrollTo(0,0);
+ };
+ const oldCash=window.openCashPDV;
+ window.openCashPDV=function(){
+   openOnlyView("pdvPanel");
+   try{renderCash();renderPDV();fillPDVProducts()}catch(e){console.error(e)}
+ };
+ document.addEventListener("DOMContentLoaded",()=>{
+   document.querySelectorAll("nav button,.bottom-nav button,.nav-bottom button").forEach(btn=>{
+     const txt=(btn.textContent||"").trim().toUpperCase();
+     if(txt.includes("CAIXA")) btn.onclick=(e)=>{e.preventDefault();e.stopPropagation();openCashPDV()};
+     else btn.addEventListener("click",()=>{const p=document.getElementById("pdvPanel");if(p){p.classList.remove("active");p.style.display="none"}});
+   });
+ });
+})();
 </script>
 </body></html>
 <style>
