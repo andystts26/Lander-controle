@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#07111f">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.svg">
+<title>Lander Controle</title>
+<style>
+:root{--bg:#07111f;--panel:#101d2d;--blue:#0a84ff;--silver:#c9d3df;--text:#f7f9fc;--muted:#91a1b4;--ok:#35c759;--warn:#ffcc00}
+*{box-sizing:border-box}body{margin:0;background:#050b13;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+header{position:sticky;top:0;background:rgba(7,17,31,.94);backdrop-filter:blur(14px);padding:18px 16px 12px;border-bottom:1px solid #1e3249;z-index:5}
+.brand{font-size:21px;font-weight:800;letter-spacing:.5px}.brand span{color:var(--blue)}.sub{font-size:12px;color:var(--muted);margin-top:3px}
+main{padding:16px 16px 92px;max-width:900px;margin:auto}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.card{background:linear-gradient(145deg,#132236,#0d1827);border:1px solid #203750;border-radius:16px;padding:14px;min-height:105px}
+.card small{color:var(--muted);display:block;font-weight:700;text-transform:uppercase;font-size:10px}.money{font-size:24px;font-weight:850;margin-top:12px}
+.section{margin-top:22px}.section h2{font-size:17px;margin:0 0 10px}.row{display:flex;align-items:center;justify-content:space-between;background:#0d1827;border:1px solid #1c3047;padding:13px;border-radius:13px;margin:8px 0;gap:10px}
+.row b{display:block}.row small{color:var(--muted)}.right{text-align:right}.pill{font-size:11px;padding:5px 8px;border-radius:999px;background:#17314e;color:#a9d4ff}
+nav{position:fixed;bottom:0;left:0;right:0;background:rgba(7,17,31,.97);border-top:1px solid #203750;display:grid;grid-template-columns:repeat(5,1fr);padding:7px 4px calc(7px + env(safe-area-inset-bottom));z-index:8}
+nav button{background:none;border:0;color:#8fa2b7;font-size:10px;padding:7px 2px}nav button.active{color:#62adff;font-weight:800}
+button.primary{width:100%;background:var(--blue);color:white;border:0;border-radius:13px;padding:13px;font-weight:800;font-size:15px}
+.view{display:none}.view.active{display:block}input,select{width:100%;background:#0b1624;border:1px solid #29445f;color:white;border-radius:11px;padding:12px;margin:5px 0 10px;font-size:16px}
+label{font-size:12px;color:var(--muted)}dialog{width:min(92%,520px);border:1px solid #29445f;border-radius:18px;background:#101d2d;color:white;padding:18px}dialog::backdrop{background:#000a}
+.actions{display:flex;gap:8px;margin-top:8px}.actions button{flex:1;padding:12px;border:0;border-radius:11px;font-weight:800}.secondary{background:#26384b;color:white}
+@media(min-width:700px){.grid{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<header><div class="brand">LANDER <span>CONTROLE</span></div><div class="sub">Controle interno • Lander iPhones</div></header>
+<main>
+<section id="inicio" class="view active">
+<div class="grid">
+<div class="card"><small>Gastos da loja</small><div class="money" id="gastosTotal"></div></div>
+<div class="card"><small>Crediário a receber</small><div class="money" id="crediarioTotal"></div></div>
+<div class="card"><small>Dívida pessoal à loja</small><div class="money" id="dividaTotal"></div></div>
+<div class="card"><small>Lucro Anderson</small><div class="money" id="lucroA"></div></div>
+<div class="card"><small>Lucro Ryan</small><div class="money" id="lucroR"></div></div>
+</div>
+<div class="section"><h2>Ações rápidas</h2><button class="primary" onclick="openModal('gasto')">+ Novo gasto</button><br><br><button class="primary" onclick="openModal('servico')">+ Novo serviço ou produto</button></div>
+</section>
+
+<section id="gastos" class="view"><div class="section"><h2>Gastos da loja</h2><div id="gastosList"></div></div></section>
+<section id="credito" class="view"><div class="section"><h2>Crediário em aberto</h2><div id="creditoList"></div></div></section>
+<section id="pecas" class="view"><div class="section"><h2>Peças e telas</h2><input id="busca" placeholder="Buscar modelo, categoria ou tela..." oninput="renderPecas()"><div id="pecasList"></div></div></section>
+<section id="socios" class="view"><div class="section"><h2>Sócios</h2><div id="sociosList"></div></div></section>
+</main>
+<nav>
+<button class="active" onclick="show('inicio',this)">Início</button>
+<button onclick="show('gastos',this)">Gastos</button>
+<button onclick="show('credito',this)">Crediário</button>
+<button onclick="show('pecas',this)">Peças</button>
+<button onclick="show('socios',this)">Sócios</button>
+</nav>
+
+<dialog id="modal"><form method="dialog" id="form">
+<h2 id="modalTitle"></h2><div id="fields"></div>
+<div class="actions"><button class="secondary" value="cancel">Cancelar</button><button class="primary" value="default" onclick="saveEntry(event)">Salvar</button></div>
+</form></dialog>
+
+<script>
+const seed={
+gastos:[
+{nome:"Zelito",valor:100,status:"Pago",tipo:"Pagamento"},
+{nome:"Aluguel",valor:900,status:"Pendente",tipo:"Mensal"},
+{nome:"Água",valor:30,status:"Pendente",tipo:"Mensal"},
+{nome:"Lanches e demais",valor:100,status:"Pendente",tipo:"Mensal"},
+{nome:"Ferramentas",valor:630,status:"Pago",tipo:"Loja"}],
+credito:[
+{cliente:"Bárbara",item:"iPhone XR",total:700,pago:0,parcela:150,acordo:"R$ 150 por quinzena"},
+{cliente:"Bruno da oficina",item:"iPhone 11",total:400,pago:300,parcela:100,acordo:"Final na quarta-feira"},
+{cliente:"Dolas",item:"iPhone 11 vermelho",total:800,pago:500,parcela:0,acordo:"Por quinzena"},
+{cliente:"Dolas",item:"iPhone 12 Pro Max 512 GB",total:2500,pago:1000,parcela:500,acordo:"R$ 500 por quinzena"},
+{cliente:"Estefânio",item:"Bateria",total:250,pago:100,parcela:100,acordo:"R$ 100 todo sábado"}],
+dividas:{Anderson:0,Ryan:250},movimentos:[],
+pecas: [{"cat": "COMUM", "nome": "6G", "valor": 130}, {"cat": "COMUM", "nome": "6S", "valor": 130}, {"cat": "COMUM", "nome": "6S PLUS", "valor": 140}, {"cat": "COMUM", "nome": "7G", "valor": 140}, {"cat": "COMUM", "nome": "7 PLUS", "valor": 150}, {"cat": "COMUM", "nome": "8 PLUS", "valor": 150}, {"cat": "COMUM", "nome": "8 PLUS VIVID PREMIUM", "valor": 230}, {"cat": "COMUM", "nome": "7 PLUS VIVID PREMIUM", "valor": 230}, {"cat": "COMUM", "nome": "XR DIAMONDS", "valor": 260}, {"cat": "COMUM", "nome": "11 DIAMONDS", "valor": 260}, {"cat": "OLED", "nome": "X OLED", "valor": 340}, {"cat": "OLED", "nome": "XS OLED", "valor": 340}, {"cat": "OLED", "nome": "XS MAX OLED", "valor": 470}, {"cat": "OLED", "nome": "11 PRO OLED PREMIUM", "valor": 470}, {"cat": "OLED", "nome": "12 / 12 PRO OLED", "valor": 480}, {"cat": "SOFT OLED", "nome": "11 PRO MAX SOFT OLED", "valor": 530}, {"cat": "SOFT OLED", "nome": "12 / 12 PRO SOFT OLED", "valor": 530}, {"cat": "SOFT OLED", "nome": "12 PRO MAX SOFT OLED", "valor": 800}, {"cat": "SOFT OLED", "nome": "13 SOFT OLED", "valor": 680}, {"cat": "SOFT OLED", "nome": "13 PRO SOFT OLED", "valor": 950}, {"cat": "SOFT OLED", "nome": "13 PRO MAX SOFT OLED", "valor": 950}, {"cat": "SOFT OLED", "nome": "14 SOFT OLED", "valor": 740}, {"cat": "SOFT OLED", "nome": "14 PLUS SOFT OLED", "valor": 1050}, {"cat": "SOFT OLED", "nome": "14 PRO SOFT OLED", "valor": 1050}, {"cat": "SOFT OLED", "nome": "14 PRO MAX SOFT OLED", "valor": 1050}, {"cat": "SOFT OLED", "nome": "15 SOFT OLED", "valor": 1160}, {"cat": "SOFT OLED", "nome": "15 PRO SOFT OLED", "valor": 1260}, {"cat": "SOFT OLED", "nome": "15 PRO MAX SOFT OLED", "valor": 1370}, {"cat": "SOFT OLED", "nome": "16 SOFT OLED", "valor": 1470}, {"cat": "SOFT OLED", "nome": "16 PRO", "valor": 1680}, {"cat": "SOFT OLED", "nome": "16 PRO MAX SOFT OLED", "valor": 1680}, {"cat": "SOFT OLED", "nome": "17 PRO MAX SOFT OLED", "valor": 2100}, {"cat": "FHD", "nome": "X FHD", "valor": 260}, {"cat": "FHD", "nome": "XS FHD", "valor": 260}, {"cat": "FHD", "nome": "XS MAX FHD", "valor": 260}, {"cat": "FHD", "nome": "11 PRO FHD", "valor": 320}, {"cat": "FHD", "nome": "11 PRO MAX FHD", "valor": 320}, {"cat": "FHD", "nome": "12 / 12 PRO FHD", "valor": 340}, {"cat": "FHD", "nome": "12 PRO MAX FHD", "valor": 380}, {"cat": "FHD", "nome": "13 FHD", "valor": 400}, {"cat": "FHD", "nome": "13 PRO FHD", "valor": 530}, {"cat": "FHD", "nome": "13 PRO MAX FHD", "valor": 530}, {"cat": "FHD", "nome": "14 FHD", "valor": 490}, {"cat": "FHD", "nome": "14 PLUS FHD", "valor": 550}, {"cat": "FHD", "nome": "14 PRO FHD", "valor": 740}, {"cat": "FHD", "nome": "14 PRO MAX FHD", "valor": 740}, {"cat": "FHD", "nome": "15 FHD", "valor": 780}, {"cat": "FHD", "nome": "15 PRO FHD", "valor": 820}, {"cat": "FHD", "nome": "15 PRO MAX FHD", "valor": 890}, {"cat": "FHD", "nome": "16 FHD", "valor": 840}, {"cat": "FHD", "nome": "16 PRO FHD", "valor": 950}, {"cat": "FHD", "nome": "17 PRO MAX FHD", "valor": 1160}, {"cat": "VIVID KIM", "nome": "11", "valor": 200}, {"cat": "VIVID KIM", "nome": "XR", "valor": 200}, {"cat": "VIVID KIM", "nome": "X", "valor": 230}, {"cat": "VIVID KIM", "nome": "XS", "valor": 230}, {"cat": "VIVID KIM", "nome": "XS MAX", "valor": 240}, {"cat": "VIVID KIM", "nome": "11 PRO", "valor": 260}, {"cat": "VIVID KIM", "nome": "11 PRO MAX", "valor": 270}, {"cat": "VIVID KIM", "nome": "12 / 12 PRO KIM", "valor": 260}, {"cat": "VIVID KIM", "nome": "12 PRO MAX KIM", "valor": 300}, {"cat": "VIVID KIM", "nome": "13", "valor": 300}, {"cat": "VIVID KIM", "nome": "14 PRO", "valor": 300}, {"cat": "VIVID KIM", "nome": "14 PLUS", "valor": 280}, {"cat": "VIVID KIM", "nome": "14", "valor": 280}, {"cat": "VIVID KIM", "nome": "14 PRO MAX", "valor": 320}, {"cat": "VIVID KIM", "nome": "15", "valor": 300}, {"cat": "VIVID KIM", "nome": "15 PRO MAX", "valor": 320}, {"cat": "VIVID KIM", "nome": "16", "valor": 420}, {"cat": "VIVID KIM", "nome": "16 PRO", "valor": 530}, {"cat": "VIVID KIM", "nome": "16 PRO MAX", "valor": 530}, {"cat": "VIVID KIM", "nome": "17", "valor": 630}, {"cat": "VIVID KIM", "nome": "17 PRO", "valor": 630}, {"cat": "VIVID KIM", "nome": "17 PRO MAX", "valor": 630}]
+};
+let db=JSON.parse(localStorage.getItem("lander_db")||"null")||seed;
+const money=v=>Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"});
+function persist(){localStorage.setItem("lander_db",JSON.stringify(db));render()}
+function show(id,b){document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll("nav button").forEach(x=>x.classList.remove("active"));b.classList.add("active")}
+function render(){
+let gt=db.gastos.reduce((a,x)=>a+x.valor,0), ct=db.credito.reduce((a,x)=>a+(x.total-x.pago),0), dt=Object.values(db.dividas).reduce((a,x)=>a+x,0);
+let lucro=db.movimentos.reduce((a,x)=>a+(x.valor-x.custo),0)/2;
+gastosTotal.textContent=money(gt);crediarioTotal.textContent=money(ct);dividaTotal.textContent=money(dt);lucroA.textContent=money(lucro);lucroR.textContent=money(lucro);
+gastosList.innerHTML=db.gastos.map(x=>`<div class="row"><div><b>${x.nome}</b><small>${x.tipo}</small></div><div class="right"><b>${money(x.valor)}</b><span class="pill">${x.status}</span></div></div>`).join("");
+creditoList.innerHTML=db.credito.map((x,i)=>`<div class="row" onclick="pay(${i})"><div><b>${x.cliente}</b><small>${x.item} • ${x.acordo}</small></div><div class="right"><b>${money(x.total-x.pago)}</b><small>faltando</small></div></div>`).join("");
+sociosList.innerHTML=`<div class="row"><div><b>Anderson</b><small>Dívida pessoal</small></div><b>${money(db.dividas.Anderson)}</b></div><div class="row"><div><b>Ryan</b><small>Dívida pessoal</small></div><b>${money(db.dividas.Ryan)}</b></div><div class="row"><div><b>Divisão de lucro</b><small>Serviços e produtos</small></div><b>50% / 50%</b></div>`;
+renderPecas()
+}
+function renderPecas(){let q=(document.getElementById("busca")?.value||"").toLowerCase();pecasList.innerHTML=db.pecas.filter(x=>(x.cat+" "+x.nome).toLowerCase().includes(q)).map(x=>`<div class="row"><div><b>${x.nome}</b><small>${x.cat} • Mastter Peças</small></div><b>${money(x.valor)}</b></div>`).join("")}
+let mode="";
+function openModal(m){mode=m;modalTitle.textContent=m==="gasto"?"Novo gasto":"Novo serviço ou produto";fields.innerHTML=m==="gasto"?`<label>Descrição</label><input id="f1" required><label>Valor</label><input id="f2" type="number" step=".01" required><label>Status</label><select id="f3"><option>Pago</option><option>Pendente</option></select>`:`<label>Descrição</label><input id="f1" required><label>Custo</label><input id="f2" type="number" step=".01" required><label>Valor cobrado / venda</label><input id="f3" type="number" step=".01" required>`;modal.showModal()}
+function saveEntry(e){e.preventDefault();if(mode==="gasto")db.gastos.push({nome:f1.value,valor:+f2.value,status:f3.value,tipo:"Loja"});else db.movimentos.push({nome:f1.value,custo:+f2.value,valor:+f3.value});modal.close();persist()}
+function pay(i){let x=db.credito[i],v=prompt(`Pagamento de ${x.cliente}. Valor recebido:`);if(v&&+v>0){x.pago=Math.min(x.total,x.pago+(+v));persist()}}
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js");
+render();
+</script>
+</body></html>
