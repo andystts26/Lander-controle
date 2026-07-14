@@ -110,7 +110,10 @@ let mode="";
 function openModal(m){mode=m;modalTitle.textContent=m==="gasto"?"Novo gasto":"Novo serviço ou produto";fields.innerHTML=m==="gasto"?`<label>Descrição</label><input id="f1" required><label>Valor</label><input id="f2" type="number" step=".01" required><label>Status</label><select id="f3"><option>Pago</option><option>Pendente</option></select>`:`<label>Descrição</label><input id="f1" required><label>Custo</label><input id="f2" type="number" step=".01" required><label>Valor cobrado / venda</label><input id="f3" type="number" step=".01" required>`;modal.showModal()}
 function saveEntry(e){e.preventDefault();if(mode==="gasto")db.gastos.push({nome:f1.value,valor:+f2.value,status:f3.value,tipo:"Loja"});else db.movimentos.push({nome:f1.value,custo:+f2.value,valor:+f3.value});modal.close();persist()}
 function pay(i){let x=db.credito[i],v=prompt(`Pagamento de ${x.cliente}. Valor recebido:`);if(v&&+v>0){x.pago=Math.min(x.total,x.pago+(+v));persist()}}
-if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js");
+if("serviceWorker" in navigator){
+navigator.serviceWorker.register("sw.js?v=3").then(r=>{r.update();});
+navigator.serviceWorker.addEventListener("controllerchange",()=>{if(!sessionStorage.getItem("lander_reloaded")){sessionStorage.setItem("lander_reloaded","1");location.reload();}});
+}
 render();
 </script>
 </body></html>
