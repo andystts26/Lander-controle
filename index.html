@@ -205,6 +205,16 @@ nav{grid-template-columns:repeat(6,1fr)}
 <button class="action" onclick="openModal('gasto')"><span class="plus">＋</span><span class="copy">NOVO GASTO<small>Registrar uma nova despesa</small></span><span class="chev">›</span></button>
 <button class="action" onclick="openModal('servico')"><span class="plus">＋</span><span class="copy">NOVO SERVIÇO OU PRODUTO<small>Adicionar serviço ou produto</small></span><span class="chev">›</span></button>
 </div></div>
+
+<div id="cashEntry" class="cash-entry">
+<button class="cash-entry-btn" type="button" onclick="openCashPDV()">
+<span class="cash-entry-icon">
+<svg viewBox="0 0 24 24"><path d="M4 7h16v13H4zM7 4h10v3H7zM8 11h8M8 15h3"/></svg>
+</span>
+<span class="cash-entry-copy"><b>CAIXA</b><small>Abrir PDV e registrar vendas</small></span>
+<span class="chev">›</span>
+</button>
+</div>
 </section>
 <section id="gastos" class="view"><h2 class="list-title">Gastos da loja</h2><div class="section-tools"><button onclick="openModal('gasto')">＋ Novo gasto</button></div><div id="gastosList"></div></section>
 <section id="credito" class="view"><h2 class="list-title">Crediário em aberto</h2><div id="creditoList"></div></section>
@@ -216,6 +226,21 @@ nav{grid-template-columns:repeat(6,1fr)}
 </section>
 <section id="socios" class="view"><h2 class="list-title">Sócios</h2><div id="sociosList"></div></section>
 <section id="os" class="view"><h2 class="list-title">Ordens de Serviço</h2><div class="section-tools"><button onclick="openOS()">＋ Nova OS</button></div><div id="osList"></div></section>
+
+<section id="pdvPanel" class="view">
+<h2 class="list-title">Caixa • PDV</h2>
+<div id="cashStatus" class="pdv-card"></div>
+<div class="pdv-card">
+<label>Produto</label>
+<input id="pdvSearch" list="pdvProductOptions" placeholder="Pesquisar somente produtos cadastrados..." oninput="fillPDVProduct()">
+<datalist id="pdvProductOptions"></datalist>
+<div class="cost-grid"><div><label>Quantidade</label><input id="pdvQty" type="number" min="1" value="1"></div><div><label>Valor unitário</label><input id="pdvPrice" type="number" min="0" step="0.01"></div></div>
+<button class="save pdv-wide" type="button" onclick="addPDVItem()">Adicionar à venda</button>
+</div>
+<div class="pdv-card"><h3>Venda atual</h3><div id="pdvItems"></div><div class="pdv-total">Total: <span id="pdvTotal">R$ 0,00</span></div>
+<label>Forma de pagamento</label><select id="pdvPayment"><option>Dinheiro</option><option>Pix</option><option>Débito</option><option>Crédito</option></select>
+<button class="save pdv-wide" type="button" onclick="finishPDV()">FINALIZAR VENDA</button></div>
+</section>
 </main>
 <nav>
 <button class="active home" onclick="show('inicio',this)"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v10h-6v-6H9v6H3z"/></svg></span>INÍCIO</button>
@@ -249,6 +274,35 @@ nav{grid-template-columns:repeat(6,1fr)}
 </div></div>
 <div id="noticePanel" class="notice-panel"><h2>Central de pendências</h2><div id="noticeList"></div></div>
 
+
+<dialog id="osModal">
+<form id="osForm" onsubmit="saveOS(event)">
+<h2 id="osModalTitle">Nova ordem de serviço</h2>
+<label>Cliente</label><input id="osCliente" required>
+<label>CPF</label><input id="osCpf" inputmode="numeric">
+<label>Telefone / WhatsApp</label><input id="osTelefone" inputmode="tel" required>
+<div class="cost-grid"><div><label>Rua</label><input id="osRua"></div><div><label>Bairro</label><input id="osBairro"></div></div>
+<label>Aparelho</label><input id="osAparelho" required>
+<label>IMEI / Serial</label>
+<div class="imei-row"><input id="osSerial"><button type="button" class="camera-btn" onclick="document.getElementById('imeiCamera').click()">📷</button></div>
+<input id="imeiCamera" type="file" accept="image/*" capture="environment" hidden onchange="readIMEI(event)">
+<small id="ocrStatus"></small>
+<label>Defeito relatado</label><textarea id="osDefeito" required></textarea>
+<label>Foto do aparelho</label><input id="devicePhoto" type="file" accept="image/*" capture="environment" onchange="loadDevicePhoto(event)">
+<img id="devicePhotoPreview" alt="Foto do aparelho" style="display:none;max-width:100%;border-radius:14px;margin-top:8px">
+<label>Serviço a ser realizado</label><textarea id="osServico" required></textarea>
+<label>Pesquisar peça cadastrada</label><input id="osPartSearch" oninput="searchOSParts()" placeholder="Digite o nome da peça">
+<div id="osPartResults"></div><div id="selectedParts"></div>
+<label>Valor cobrado / mão de obra</label><input id="osMaoObra" type="number" min="0" step="0.01" value="0">
+<label>Garantia</label><select id="osGarantia"><option>Sem garantia</option><option>30 dias</option><option>3 meses</option><option>6 meses</option></select>
+<label>Status</label><select id="osStatus" onchange="togglePayment()"><option>Recebido</option><option>Em análise</option><option>Em reparo</option><option>Pronto</option><option>Entregue</option></select>
+<div id="paymentWrap" style="display:none"><label>Forma de pagamento</label><select id="osPagamento"><option>Dinheiro</option><option>Pix</option><option>Débito</option><option>Crédito</option></select></div>
+<label>Assinatura do cliente</label>
+<canvas id="signatureCanvas" width="700" height="220"></canvas>
+<button type="button" class="secondary" onclick="clearSignature()">Limpar assinatura</button>
+<div class="actions"><button type="button" class="secondary" onclick="document.getElementById('osModal').close()">Cancelar</button><button type="submit" class="save">Salvar OS</button></div>
+</form>
+</dialog>
 <script>
 const seed={
 gastos:[
@@ -358,7 +412,7 @@ async function readImeiPhoto(e){let f=e.target.files[0];if(!f)return;ocrStatus.t
 function compressImage(file,max=1280,quality=.72){return new Promise((resolve,reject)=>{let r=new FileReader();r.onload=()=>{let img=new Image();img.onload=()=>{let scale=Math.min(1,max/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=Math.round(img.width*scale);c.height=Math.round(img.height*scale);c.getContext("2d").drawImage(img,0,0,c.width,c.height);resolve(c.toDataURL("image/jpeg",quality))};img.onerror=reject;img.src=r.result};r.onerror=reject;r.readAsDataURL(file)})}
 async function loadDevicePhoto(e){let f=e.target.files[0];if(!f)return;try{devicePhotoPreview.src=await compressImage(f);devicePhotoPreview.style.display="block"}catch{alert("Não foi possível carregar a foto.")}e.target.value=""}
 let sigCtx=null,sigDrawing=false,sigHasInk=false;
-function initSignature(){let c=signatureCanvas,dpr=Math.max(1,window.devicePixelRatio||1),rect=c.getBoundingClientRect();c.width=Math.round(rect.width*dpr);c.height=Math.round(180*dpr);sigCtx=c.getContext("2d");sigCtx.scale(dpr,dpr);sigCtx.lineWidth=2.2;sigCtx.lineCap="round";sigCtx.lineJoin="round";sigCtx.strokeStyle="#000";clearSignature();let pos=e=>{let r=c.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return{x:t.clientX-r.left,y:t.clientY-r.top}};c.onpointerdown=e=>{sigDrawing=true;sigHasInk=true;let p=pos(e);sigCtx.beginPath();sigCtx.moveTo(p.x,p.y);c.setPointerCapture?.(e.pointerId)};c.onpointermove=e=>{if(!sigDrawing)return;let p=pos(e);sigCtx.lineTo(p.x,p.y);sigCtx.stroke()};c.onpointerup=c.onpointercancel=()=>sigDrawing=false}
+function initSignature(){let c=document.getElementById("signatureCanvas");if(!c)return;let dpr=Math.max(1,window.devicePixelRatio||1),rect=c.getBoundingClientRect();c.width=Math.round(rect.width*dpr);c.height=Math.round(180*dpr);sigCtx=c.getContext("2d");sigCtx.scale(dpr,dpr);sigCtx.lineWidth=2.2;sigCtx.lineCap="round";sigCtx.lineJoin="round";sigCtx.strokeStyle="#000";clearSignature();let pos=e=>{let r=c.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return{x:t.clientX-r.left,y:t.clientY-r.top}};c.onpointerdown=e=>{sigDrawing=true;sigHasInk=true;let p=pos(e);sigCtx.beginPath();sigCtx.moveTo(p.x,p.y);c.setPointerCapture?.(e.pointerId)};c.onpointermove=e=>{if(!sigDrawing)return;let p=pos(e);sigCtx.lineTo(p.x,p.y);sigCtx.stroke()};c.onpointerup=c.onpointercancel=()=>sigDrawing=false}
 function clearSignature(){if(!sigCtx)return;let c=signatureCanvas,r=c.getBoundingClientRect();sigCtx.save();sigCtx.setTransform(1,0,0,1,0,0);sigCtx.fillStyle="#fff";sigCtx.fillRect(0,0,c.width,c.height);sigCtx.restore();sigHasInk=false}
 function loadSignature(src){let img=new Image();img.onload=()=>{let r=signatureCanvas.getBoundingClientRect();sigCtx.drawImage(img,0,0,r.width,180);sigHasInk=true};img.src=src}
 function onlyDigits(s){return String(s||"").replace(/\D/g,"")}
@@ -366,229 +420,121 @@ async function generateAndSharePDF(i){let x=db.os[i],{jsPDF}=window.jspdf,doc=ne
 
 function renderOS(){if(!document.getElementById("osList"))return;osList.innerHTML=db.os.map((x,i)=>{let pc=(x.pecas||[]).reduce((a,p)=>a+Number(p.custo||0),0);return `<div class="os-card"><h3>${esc(x.cliente)} — ${esc(x.aparelho)}</h3><div class="os-meta"><b>Status:</b> ${esc(x.status)}<br><b>CPF:</b> ${esc(x.cpf||"-")}<br><b>Endereço:</b> ${esc(x.rua||"-")} • ${esc(x.bairro||"-")}<br><b>IMEI / Serial:</b> ${esc(x.serial||"-")}<br><b>Defeito:</b> ${esc(x.defeito)}<br><b>Serviço:</b> ${esc(x.servico)}<br><b>Peças:</b> ${(x.pecas||[]).map(p=>esc(p.nome)).join(", ")||"Nenhuma"}<br><b>Custo das peças:</b> ${money(pc)}<br><b>Pagamento:</b> ${esc(x.pagamento||"Disponível quando ficar Pronto")}</div><div class="os-total">Valor cobrado: ${money(x.maoObra)}</div><div class="os-actions"><button onclick="openOS(${i})">Editar</button><button onclick="finishOS(${i})">${x.lancada?"PDF / WhatsApp":"Finalizar"}</button><button onclick="deleteOS(${i})">Excluir</button></div></div>`}).join("")||'<div class="row">Nenhuma OS cadastrada.</div>'}
 if(localStorage.getItem("lander_quick_hidden")==="1"){quick.classList.add("collapsed");document.querySelector(".quick-toggle").textContent="⌄"}
-if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js?v=114");
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js?v=115");
 render();
 
 </script>
 
 <style>
-#pdvPanel{display:none;padding:20px 22px 120px;min-height:100vh}
-#pdvPanel.active{display:block}
-.pdv-grid{display:grid;gap:12px}.pdv-card{background:rgba(1,14,26,.92);border:1px solid #17629a;border-radius:20px;padding:16px}
-.pdv-row{display:flex;gap:10px;align-items:center}.pdv-row>*{flex:1}
-.pdv-card input,.pdv-card select{width:100%;box-sizing:border-box;background:#061321;color:#fff;border:1px solid #245b84;border-radius:12px;padding:13px}
-.pdv-btn{background:#078cff;color:white;border:0;border-radius:14px;padding:14px;font-weight:800}
-.pdv-danger{background:#152434}.pdv-item{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #173650;padding:10px 0}
-.pdv-total{font-size:28px;font-weight:900}
-#weeklyReport{white-space:pre-wrap;line-height:1.5}
-</style>
-<section id="pdvPanel">
- <h1>PDV • Vendas</h1>
- <div id="cashStatus" class="pdv-card"></div>
- <div class="pdv-card">
-  <div class="pdv-row"><input id="pdvSearch" list="pdvProductOptions" placeholder="Pesquisar produto cadastrado..." oninput="fillPDVProduct()"><datalist id="pdvProductOptions"></datalist></div>
-  <div class="pdv-row"><input id="pdvQty" type="number" min="1" value="1" placeholder="Qtd."><input id="pdvPrice" type="number" step="0.01" placeholder="Valor unitário"></div>
-  <button class="pdv-btn" type="button" onclick="addPDVItem()">Adicionar à venda</button>
- </div>
- <div class="pdv-card"><h3>Venda atual</h3><div id="pdvItems"></div><div class="pdv-total">Total: <span id="pdvTotal">R$ 0,00</span></div>
- <select id="pdvPayment"><option>Dinheiro</option><option>Pix</option><option>Débito</option><option>Crédito</option></select>
- <button class="pdv-btn" type="button" onclick="finishPDV()">FINALIZAR VENDA</button></div>
- 
-</section>
-<script>
-(function(){
- db.pdv=db.pdv||[]; db.caixa=db.caixa||{};
- const savePDV=()=>{try{save()}catch(e){localStorage.setItem("landerDB",JSON.stringify(db))}};
- window.pdvCart=[];
- function money(v){return Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
- function cashKey(d=new Date()){return d.toISOString().slice(0,10)}
- function cashState(){
-  const d=new Date(),day=d.getDay(),mins=d.getHours()*60+d.getMinutes(),work=day>=1&&day<=6,open=work&&mins>=420&&mins<1200;
-  db.caixa[cashKey(d)]={aberto:open,abertura:"07:00",fechamento:"20:00",atualizado:d.toISOString()};savePDV();return open;
- }
- window.renderCash=function(){
-  const el=document.getElementById("cashStatus");if(!el)return;let open=cashState();
-  el.innerHTML="<b>CAIXA "+(open?"ABERTO":"FECHADO")+"</b><br><small>Automático • segunda a sábado • 07:00 às 20:00</small>";
- }
- window.fillPDVProducts=function(){
-  const list=document.getElementById("pdvProductOptions");if(!list)return;
-  list.innerHTML=(db.pecas||[]).map(x=>`<option value="${String(x.nome||"").replace(/"/g,"&quot;")}"></option>`).join("");
- }
- window.fillPDVProduct=function(){
-  let x=(db.pecas||[]).find(p=>String(p.nome||"").toLowerCase()===pdvSearch.value.trim().toLowerCase());
-  if(x)pdvPrice.value=Number(x.valor||0);
- }
- window.addPDVItem=function(){
-  let nome=pdvSearch.value.trim(),q=Number(pdvQty.value||1);
-  let prod=(db.pecas||[]).find(x=>String(x.nome||"").toLowerCase()===nome.toLowerCase());
-  if(!prod){alert("Selecione um produto cadastrado na pesquisa.");return}
-  let v=Number(pdvPrice.value||prod.valor||0);
-  if(q<=0||v<0){alert("Preencha quantidade e valor.");return}
-  pdvCart.push({tipo:"Produto",nome:prod.nome,qtd:q,valor:v,custo:Number(prod.custo||0)});
-  pdvSearch.value="";pdvPrice.value="";renderPDV();
- }
- window.removePDVItem=function(i){pdvCart.splice(i,1);renderPDV()}
- window.renderPDV=function(){
-  let el=document.getElementById("pdvItems"),t=0;if(!el)return;
-  el.innerHTML=pdvCart.map((x,i)=>{t+=x.qtd*x.valor;return `<div class="pdv-item"><span>${x.qtd}x ${x.nome}<small> • ${x.tipo}</small></span><span>${money(x.qtd*x.valor)} <button onclick="removePDVItem(${i})">×</button></span></div>`}).join("")||"<small>Nenhum item.</small>";
-  pdvTotal.textContent=money(t);
- }
- window.finishPDV=function(){
-  if(!cashState()){alert("O caixa está fechado. Horário automático: 07:00 às 20:00, de segunda a sábado.");return}
-  if(!pdvCart.length){alert("Adicione pelo menos um item.");return}
-  let total=pdvCart.reduce((a,x)=>a+x.qtd*x.valor,0);
-  db.pdv.push({data:new Date().toISOString(),itens:pdvCart.map(x=>({...x})),total,pagamento:pdvPayment.value});
-  pdvCart=[];savePDV();renderPDV();alert("Venda finalizada: "+money(total));
- }
- window.renderWeeklyReport=function(){
-  const el=document.getElementById("weeklyReport");if(!el)return;
-  let now=new Date(),dow=now.getDay()||7,start=new Date(now);start.setHours(0,0,0,0);start.setDate(now.getDate()-dow+1);
-  let end=new Date(start);end.setDate(start.getDate()+6);end.setHours(23,59,59,999);
-  let sales=(db.pdv||[]).filter(x=>{let d=new Date(x.data);return d>=start&&d<=end});
-  let produtos=0,pecas=0,servicos=0;
-  sales.forEach(v=>(v.itens||[]).forEach(x=>{let z=x.qtd*x.valor;if(x.tipo==="Produto")produtos+=z;else if(x.tipo==="Peça")pecas+=z;else servicos+=z}));
-  let despesas=(db.gastos||[]).filter(x=>{let d=new Date(x.data||x.createdAt||0);return d>=start&&d<=end}).reduce((a,x)=>a+Number(x.valor||0),0);
-  let receita=produtos+pecas+servicos,lucro=receita-despesas;
-  el.textContent=`SEMANA ${start.toLocaleDateString("pt-BR")} a ${end.toLocaleDateString("pt-BR")}\nVendas: ${money(receita)}\nServiços: ${money(servicos)}\nProdutos: ${money(produtos)}\nPeças: ${money(pecas)}\nDespesas: ${money(despesas)}\nLucro líquido estimado: ${money(lucro)}\nTotal de vendas: ${sales.length}`;
- }
- function addPDVNav(){
-  let nav=document.querySelector("nav,.bottom-nav,.nav-bottom");
-  if(!nav||document.getElementById("pdvNavBtn"))return;
-  let b=document.createElement("button");b.id="pdvNavBtn";b.type="button";b.innerHTML="▣<br>CAIXA";b.onclick=()=>{
-   document.querySelectorAll("main section,.page,.screen").forEach(x=>x.style.display="none");
-   document.getElementById("pdvPanel").classList.add("active");renderCash();renderPDV();fillPDVProducts();
-  };nav.appendChild(b);
- }
- document.addEventListener("DOMContentLoaded",()=>{addPDVNav();renderCash();renderPDV();fillPDVProducts();setInterval(renderCash,60000)});
-})();
-</script>
-
-
-<style>
-/* V13 — Início com acesso ao Caixa */
+/* V15 — navegação e telas estáveis */
 #inicio .grid,#inicio .quick{display:none!important}
 .cash-entry{padding:28px 0 120px}
-.cash-entry-btn{
- width:100%;min-height:108px;border:1px solid #168cff;border-radius:20px;
- background:linear-gradient(145deg,rgba(3,18,31,.97),rgba(1,8,15,.96));
- color:#fff;display:flex;align-items:center;gap:18px;padding:18px 22px;
- box-shadow:0 10px 28px #0009;text-align:left
-}
-.cash-entry-icon{
- width:66px;height:66px;min-width:66px;border-radius:18px;
- border:1px solid #168cff;background:#071b2d;color:#168cff;
- display:flex;align-items:center;justify-content:center;font-size:34px
-}
-.cash-entry-copy b{display:block;font-size:21px;letter-spacing:.4px}
-.cash-entry-copy small{display:block;color:#aeb8c6;font-size:13px;margin-top:5px}
-#pdvPanel{display:none!important}
-#pdvPanel.active{display:block!important}
+.cash-entry-btn{width:100%;min-height:108px;border:1px solid #168cff;border-radius:20px;background:linear-gradient(145deg,rgba(3,18,31,.97),rgba(1,8,15,.96));color:#fff;display:flex;align-items:center;gap:18px;padding:18px 22px;box-shadow:0 10px 28px #0009;text-align:left}
+.cash-entry-icon{width:66px;height:66px;min-width:66px;border-radius:18px;border:1px solid #168cff;background:#071b2d;color:#168cff;display:flex;align-items:center;justify-content:center}
+.cash-entry-icon svg{width:34px;height:34px;fill:none;stroke:currentColor;stroke-width:1.8}
+.cash-entry-copy{flex:1}.cash-entry-copy b{display:block;font-size:21px}.cash-entry-copy small{display:block;color:#aeb8c6;font-size:13px;margin-top:5px}
+#pdvPanel{padding-bottom:130px}.pdv-card{background:rgba(1,14,26,.92);border:1px solid #17629a;border-radius:20px;padding:16px;margin-bottom:14px}
+.pdv-card input,.pdv-card select{width:100%;box-sizing:border-box}.pdv-wide{width:100%;margin-top:12px}.pdv-item{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid #173650;padding:10px 0}.pdv-total{font-size:28px;font-weight:900;margin:14px 0}
+.imei-row{display:grid;grid-template-columns:1fr 58px;gap:8px}.camera-btn{border:1px solid #168cff;border-radius:12px;background:#071b2d;color:#fff;font-size:22px}
+#signatureCanvas{display:block;width:100%;height:180px;background:#fff;border-radius:12px;touch-action:none}
+#osModal textarea{min-height:90px}
 </style>
-<script>
-document.addEventListener("DOMContentLoaded",()=>{
- const inicio=document.getElementById("inicio");
- if(inicio && !document.getElementById("cashEntry")){
-   const box=document.createElement("div");
-   box.id="cashEntry"; box.className="cash-entry";
-   box.innerHTML=`<button class="cash-entry-btn" type="button" onclick="openCashPDV()">
-     <span class="cash-entry-icon">▣</span>
-     <span class="cash-entry-copy"><b>CAIXA</b><small>Abrir PDV e registrar vendas</small></span>
-     <span class="chev">›</span>
-   </button>`;
-   inicio.appendChild(box);
- }
-});
-function openCashPDV(){
- document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));
- const p=document.getElementById("pdvPanel");
- if(p){p.classList.add("active");renderCash();renderPDV()}
- window.scrollTo(0,0);
-}
-</script>
-
-<dialog id="osModal" class="modal">
-<form id="osForm" method="dialog" onsubmit="saveOS(event)">
-<h2 id="osModalTitle">Nova ordem de serviço</h2>
-<div class="form-grid">
-<label>Cliente<input id="osCliente" required></label>
-<label>CPF<input id="osCpf" inputmode="numeric"></label>
-<label>Telefone / WhatsApp<input id="osTelefone" inputmode="tel" required></label>
-<label>Rua<input id="osRua"></label>
-<label>Bairro<input id="osBairro"></label>
-<label>Aparelho<input id="osAparelho" required></label>
-<label>IMEI / Serial<div class="pdv-row"><input id="osSerial"><button type="button" class="small-btn" onclick="document.getElementById('imeiCamera').click()">📷</button></div></label>
-<input id="imeiCamera" type="file" accept="image/*" capture="environment" hidden onchange="readIMEI(event)">
-<small id="ocrStatus"></small>
-<label>Defeito relatado<textarea id="osDefeito" required></textarea></label>
-<label>Foto do aparelho<input id="devicePhoto" type="file" accept="image/*" capture="environment" onchange="loadDevicePhoto(event)"></label>
-<img id="devicePhotoPreview" style="display:none;max-width:100%;border-radius:14px">
-<label>Serviço a realizar<textarea id="osServico" required></textarea></label>
-<label>Pesquisar peça<input id="osPartSearch" oninput="searchOSParts()" placeholder="Digite o nome da peça"></label>
-<div id="osPartResults"></div><div id="selectedParts"></div>
-<label>Valor cobrado / mão de obra<input id="osMaoObra" type="number" min="0" step="0.01" value="0"></label>
-<label>Garantia<select id="osGarantia"><option>Sem garantia</option><option>30 dias</option><option>3 meses</option><option>6 meses</option></select></label>
-<label>Status<select id="osStatus" onchange="togglePayment()"><option>Recebido</option><option>Em análise</option><option>Em reparo</option><option>Pronto</option><option>Entregue</option></select></label>
-<label id="paymentWrap" style="display:none">Forma de pagamento<select id="osPagamento"><option>Dinheiro</option><option>Pix</option><option>Débito</option><option>Crédito</option></select></label>
-<label>Assinatura do cliente</label>
-<canvas id="signatureCanvas" width="700" height="220" style="width:100%;height:150px;background:#fff;border-radius:12px;touch-action:none"></canvas>
-<button type="button" class="secondary" onclick="clearSignature()">Limpar assinatura</button>
-</div>
-<div class="modal-actions"><button type="button" class="secondary" onclick="osModal.close()">Cancelar</button><button type="submit" class="primary">Salvar OS</button></div>
-</form></dialog>
 
 <script>
-function loadDevicePhoto(e){
- const f=e.target.files&&e.target.files[0];if(!f)return;
- const r=new FileReader();r.onload=()=>{devicePhotoPreview.src=r.result;devicePhotoPreview.style.display="block"};r.readAsDataURL(f);
-}
-async function readIMEI(e){
- const f=e.target.files&&e.target.files[0];if(!f)return;
- ocrStatus.textContent="Foto do IMEI adicionada. Digite ou confira o número no campo.";
- try{
-  if(window.Tesseract){
-   ocrStatus.textContent="Lendo IMEI...";
-   const r=await Tesseract.recognize(f,"eng");
-   const m=(r.data.text||"").replace(/\D/g,"").match(/\d{15}/);
-   if(m)osSerial.value=m[0];
-   ocrStatus.textContent=m?"IMEI identificado. Confira o número.":"Não identifiquei automaticamente. Digite o IMEI.";
-  }
- }catch(err){ocrStatus.textContent="Não identifiquei automaticamente. Digite o IMEI."}
-}
-function togglePayment(){
- const w=document.getElementById("paymentWrap"),s=document.getElementById("osStatus");
- if(w&&s)w.style.display=["Pronto","Entregue"].includes(s.value)?"block":"none";
-}
-function clearSignature(){
- const c=document.getElementById("signatureCanvas");if(c)c.getContext("2d").clearRect(0,0,c.width,c.height);
-}
 (function(){
- const views=()=>[...document.querySelectorAll(".view")];
- window.openOnlyView=function(id){
-   views().forEach(v=>{v.classList.remove("active");v.style.display="none"});
-   const target=document.getElementById(id);
-   if(target){target.style.display="block";target.classList.add("active")}
-   const pdv=document.getElementById("pdvPanel");
-   if(pdv&&id!=="pdvPanel"){pdv.classList.remove("active");pdv.style.display="none"}
-   window.scrollTo(0,0);
- };
- const oldCash=window.openCashPDV;
- window.openCashPDV=function(){
-   openOnlyView("pdvPanel");
-   try{renderCash();renderPDV();fillPDVProducts()}catch(e){console.error(e)}
- };
- document.addEventListener("DOMContentLoaded",()=>{
-   document.querySelectorAll("nav button,.bottom-nav button,.nav-bottom button").forEach(btn=>{
-     const txt=(btn.textContent||"").trim().toUpperCase();
-     if(txt.includes("CAIXA")) btn.onclick=(e)=>{e.preventDefault();e.stopPropagation();openCashPDV()};
-     else btn.addEventListener("click",()=>{const p=document.getElementById("pdvPanel");if(p){p.classList.remove("active");p.style.display="none"}});
-   });
- });
+"use strict";
+db.pdv=db.pdv||[];db.caixa=db.caixa||{};
+let pdvCart=[];
+
+function savePDV(){localStorage.setItem("lander_db",JSON.stringify(db))}
+function cashKey(d=new Date()){return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")}
+function cashState(){
+ const d=new Date(),day=d.getDay(),mins=d.getHours()*60+d.getMinutes();
+ const open=day>=1&&day<=6&&mins>=420&&mins<1200;
+ db.caixa[cashKey(d)]={aberto:open,abertura:"07:00",fechamento:"20:00",atualizado:d.toISOString()};
+ savePDV();return open;
+}
+window.renderCash=function(){
+ const el=document.getElementById("cashStatus");if(!el)return;
+ const open=cashState();
+ el.innerHTML="<b>CAIXA "+(open?"ABERTO":"FECHADO")+"</b><br><small>Automático • segunda a sábado • 07:00 às 20:00</small>";
+};
+window.fillPDVProducts=function(){
+ const list=document.getElementById("pdvProductOptions");if(!list)return;
+ list.innerHTML=(db.pecas||[]).map(x=>'<option value="'+esc(x.nome)+'"></option>').join("");
+};
+window.fillPDVProduct=function(){
+ const input=document.getElementById("pdvSearch"),price=document.getElementById("pdvPrice");if(!input||!price)return;
+ const prod=(db.pecas||[]).find(x=>String(x.nome||"").toLowerCase()===input.value.trim().toLowerCase());
+ if(prod)price.value=Number(prod.valor||0);
+};
+window.addPDVItem=function(){
+ const input=document.getElementById("pdvSearch"),qty=document.getElementById("pdvQty"),price=document.getElementById("pdvPrice");
+ const nome=input.value.trim(),prod=(db.pecas||[]).find(x=>String(x.nome||"").toLowerCase()===nome.toLowerCase());
+ if(!prod)return alert("Selecione um produto cadastrado.");
+ const q=Number(qty.value||1),v=Number(price.value||prod.valor||0);
+ if(q<=0||v<0)return alert("Confira quantidade e valor.");
+ pdvCart.push({tipo:"Produto",nome:prod.nome,qtd:q,valor:v,custo:Number(prod.custo||0)});
+ input.value="";price.value="";qty.value=1;renderPDV();
+};
+window.removePDVItem=function(i){pdvCart.splice(i,1);renderPDV()};
+window.renderPDV=function(){
+ const el=document.getElementById("pdvItems"),total=document.getElementById("pdvTotal");if(!el||!total)return;
+ let t=0;el.innerHTML=pdvCart.map((x,i)=>{t+=x.qtd*x.valor;return '<div class="pdv-item"><span>'+x.qtd+'x '+esc(x.nome)+'</span><span>'+money(x.qtd*x.valor)+' <button type="button" onclick="removePDVItem('+i+')">×</button></span></div>'}).join("")||"<small>Nenhum item.</small>";
+ total.textContent=money(t);
+};
+window.finishPDV=function(){
+ if(!cashState())return alert("O caixa está fechado. Horário automático: 07:00 às 20:00, de segunda a sábado.");
+ if(!pdvCart.length)return alert("Adicione pelo menos um produto.");
+ const total=pdvCart.reduce((a,x)=>a+x.qtd*x.valor,0),payment=document.getElementById("pdvPayment");
+ db.pdv.push({data:new Date().toISOString(),itens:pdvCart.map(x=>({...x})),total,pagamento:payment.value});
+ pdvCart=[];savePDV();renderPDV();alert("Venda finalizada: "+money(total));
+};
+window.openCashPDV=function(){
+ show("pdvPanel",document.getElementById("pdvNavBtn"));
+ renderCash();renderPDV();fillPDVProducts();
+};
+const originalShow=window.show;
+window.show=function(id,b){
+ document.getElementById("pdvPanel")?.classList.remove("active");
+ originalShow(id,b);
+};
+window.openCashPDV=function(){
+ originalShow("pdvPanel",document.getElementById("pdvNavBtn"));
+ renderCash();renderPDV();fillPDVProducts();
+};
+const nav=document.querySelector("nav");
+if(nav&&!document.getElementById("pdvNavBtn")){
+ const b=document.createElement("button");b.id="pdvNavBtn";b.type="button";
+ b.innerHTML='<span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 7h16v13H4zM7 4h10v3H7zM8 11h8M8 15h3"/></svg></span>CAIXA';
+ b.onclick=()=>openCashPDV();nav.appendChild(b);
+}
+window.loadDevicePhoto=function(e){
+ const f=e.target.files&&e.target.files[0];if(!f)return;
+ const r=new FileReader();r.onload=()=>{const img=document.getElementById("devicePhotoPreview");img.src=r.result;img.style.display="block"};r.readAsDataURL(f);
+};
+window.readIMEI=async function(e){
+ const f=e.target.files&&e.target.files[0],status=document.getElementById("ocrStatus");if(!f)return;
+ status.textContent="Lendo IMEI...";
+ try{
+  if(!window.Tesseract)throw new Error("OCR indisponível");
+  const r=await Tesseract.recognize(f,"eng"),m=(r.data.text||"").replace(/\D/g,"").match(/\d{15}/);
+  if(m)document.getElementById("osSerial").value=m[0];
+  status.textContent=m?"IMEI identificado. Confira o número.":"Não identifiquei automaticamente. Digite o IMEI.";
+ }catch(e){status.textContent="Não identifiquei automaticamente. Digite o IMEI."}
+};
+window.togglePayment=function(){
+ const wrap=document.getElementById("paymentWrap"),status=document.getElementById("osStatus");if(!wrap||!status)return;
+ wrap.style.display=["Pronto","Entregue"].includes(status.value)?"block":"none";
+};
+window.clearSignature=function(){
+ const c=document.getElementById("signatureCanvas");if(!c)return;
+ const ctx=c.getContext("2d");ctx.clearRect(0,0,c.width,c.height);ctx.fillStyle="#fff";ctx.fillRect(0,0,c.width,c.height);
+ if(typeof sigHasInk!=="undefined")sigHasInk=false;
+};
+renderCash();renderPDV();fillPDVProducts();
+setInterval(renderCash,60000);
 })();
 </script>
+
 </body></html>
-<style>
-#home .stat-icon,.home .stat-icon,#inicio .stat-icon,
-#home .metric-icon,.home .metric-icon,#inicio .metric-icon,
-#home .card-icon,.home .card-icon,#inicio .card-icon{display:none!important}
-#home .stat-card,.home .stat-card,#inicio .stat-card{grid-template-columns:1fr!important}
-</style>
