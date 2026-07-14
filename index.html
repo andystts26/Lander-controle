@@ -7,23 +7,40 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon.svg">
 <title>Lander Controle</title>
+
 <style>
-:root{--bg:#07111f;--panel:#101d2d;--blue:#0a84ff;--silver:#c9d3df;--text:#f7f9fc;--muted:#91a1b4;--ok:#35c759;--warn:#ffcc00}
-*{box-sizing:border-box}body{margin:0;background:#050b13;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-header{position:sticky;top:0;background:rgba(7,17,31,.94);backdrop-filter:blur(14px);padding:18px 16px 12px;border-bottom:1px solid #1e3249;z-index:5}
-.brand{font-size:21px;font-weight:800;letter-spacing:.5px}.brand span{color:var(--blue)}.sub{font-size:12px;color:var(--muted);margin-top:3px}
-main{padding:16px 16px 92px;max-width:900px;margin:auto}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.card{background:linear-gradient(145deg,#132236,#0d1827);border:1px solid #203750;border-radius:16px;padding:14px;min-height:105px}
-.card small{color:var(--muted);display:block;font-weight:700;text-transform:uppercase;font-size:10px}.money{font-size:24px;font-weight:850;margin-top:12px}
-.section{margin-top:22px}.section h2{font-size:17px;margin:0 0 10px}.row{display:flex;align-items:center;justify-content:space-between;background:#0d1827;border:1px solid #1c3047;padding:13px;border-radius:13px;margin:8px 0;gap:10px}
+:root{--blue:#0a84ff;--line:#29455f;--text:#f8fbff;--muted:#a8b5c7;--green:#19d878;--purple:#8247ff}
+*{box-sizing:border-box}
+html,body{min-height:100%;margin:0}
+body{color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#02060b url("lander-bg.jpeg") center top/cover fixed no-repeat}
+body:before{content:"";position:fixed;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.20),rgba(0,5,12,.38) 48%,rgba(0,0,0,.72));z-index:-1}
+header{padding:22px 24px 8px;background:transparent;border:0;text-align:center}
+.brand{height:300px;font-size:0}.brand span{display:none}.sub{display:none}
+main{padding:8px 18px 122px;max-width:900px;margin:auto}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.card{position:relative;background:linear-gradient(145deg,rgba(4,13,22,.90),rgba(2,8,14,.78));border:1px solid rgba(111,153,190,.55);border-radius:20px;padding:25px 18px 34px;min-height:205px;box-shadow:0 8px 24px #0008,inset 0 0 20px rgba(10,132,255,.04);overflow:hidden}
+.card:before{content:"";display:block;width:68px;height:68px;border:2px solid var(--blue);border-radius:50%;margin-bottom:16px;box-shadow:0 0 16px rgba(10,132,255,.25)}
+.card:after{content:"";position:absolute;left:20px;right:20px;bottom:18px;height:38px;background:linear-gradient(165deg,transparent 44%,var(--blue) 45%,var(--blue) 48%,transparent 49%) 0 0/44px 20px;opacity:.8;filter:drop-shadow(0 0 5px var(--blue))}
+.card small{color:#b8c3d1;display:block;font-weight:700;text-transform:uppercase;font-size:14px;letter-spacing:.3px}
+.money{font-size:30px;font-weight:850;margin-top:10px;white-space:nowrap}
+.card:nth-child(4):before,.card:nth-child(4):after{border-color:var(--green);filter:drop-shadow(0 0 5px var(--green))}
+.card:nth-child(5):before,.card:nth-child(5):after{border-color:var(--purple);filter:drop-shadow(0 0 5px var(--purple))}
+.section{margin-top:42px}.section h2{font-size:23px;margin:0 0 18px;text-transform:uppercase;letter-spacing:.4px}
+.section h2:before{content:"◢";color:var(--blue);margin-right:10px}
+.row{display:flex;align-items:center;justify-content:space-between;background:linear-gradient(145deg,rgba(4,13,22,.92),rgba(2,8,14,.82));border:1px solid rgba(56,126,190,.72);padding:18px;border-radius:18px;margin:10px 0;gap:10px;box-shadow:0 7px 22px #0008}
 .row b{display:block}.row small{color:var(--muted)}.right{text-align:right}.pill{font-size:11px;padding:5px 8px;border-radius:999px;background:#17314e;color:#a9d4ff}
-nav{position:fixed;bottom:0;left:0;right:0;background:rgba(7,17,31,.97);border-top:1px solid #203750;display:grid;grid-template-columns:repeat(5,1fr);padding:7px 4px calc(7px + env(safe-area-inset-bottom));z-index:8}
-nav button{background:none;border:0;color:#8fa2b7;font-size:10px;padding:7px 2px}nav button.active{color:#62adff;font-weight:800}
-button.primary{width:100%;background:var(--blue);color:white;border:0;border-radius:13px;padding:13px;font-weight:800;font-size:15px}
-.view{display:none}.view.active{display:block}input,select{width:100%;background:#0b1624;border:1px solid #29445f;color:white;border-radius:11px;padding:12px;margin:5px 0 10px;font-size:16px}
-label{font-size:12px;color:var(--muted)}dialog{width:min(92%,520px);border:1px solid #29445f;border-radius:18px;background:#101d2d;color:white;padding:18px}dialog::backdrop{background:#000a}
+button.primary{width:100%;min-height:112px;background:linear-gradient(145deg,rgba(4,13,22,.94),rgba(2,8,14,.86));color:white;border:1px solid var(--blue);border-radius:20px;padding:18px 22px;font-weight:800;font-size:20px;text-align:left;box-shadow:0 0 18px rgba(10,132,255,.14)}
+button.primary:before{content:"＋";display:inline-grid;place-items:center;width:62px;height:62px;border:2px solid var(--blue);border-radius:50%;margin-right:20px;color:var(--blue);font-size:38px;vertical-align:middle}
+nav{position:fixed;bottom:12px;left:18px;right:18px;background:rgba(3,10,17,.94);border:1px solid rgba(103,143,178,.6);display:grid;grid-template-columns:repeat(5,1fr);padding:10px 4px calc(10px + env(safe-area-inset-bottom));z-index:8;border-radius:28px;box-shadow:0 12px 30px #000}
+nav button{background:none;border:0;color:#9aa8b9;font-size:11px;padding:10px 2px}nav button:before{display:block;font-size:25px;margin-bottom:5px}
+nav button:nth-child(1):before{content:"⌂"}nav button:nth-child(2):before{content:"＄"}nav button:nth-child(3):before{content:"▣"}nav button:nth-child(4):before{content:"◇"}nav button:nth-child(5):before{content:"♙"}
+nav button.active{color:var(--blue);font-weight:800;text-shadow:0 0 9px rgba(10,132,255,.6)}
+.view{display:none}.view.active{display:block}
+input,select{width:100%;background:rgba(4,13,22,.94);border:1px solid #29445f;color:white;border-radius:13px;padding:14px;margin:5px 0 10px;font-size:16px}
+label{font-size:12px;color:var(--muted)}
+dialog{width:min(92%,520px);border:1px solid #2b6ca5;border-radius:20px;background:#07111f;color:white;padding:18px}dialog::backdrop{background:#000b}
 .actions{display:flex;gap:8px;margin-top:8px}.actions button{flex:1;padding:12px;border:0;border-radius:11px;font-weight:800}.secondary{background:#26384b;color:white}
-@media(min-width:700px){.grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:430px){header{padding-top:8px}.brand{height:245px}.card{min-height:185px;padding:22px 14px 30px}.card:before{width:58px;height:58px}.money{font-size:25px}.card small{font-size:12px}main{padding-left:14px;padding-right:14px}.section{margin-top:34px}button.primary{font-size:17px;min-height:100px}button.primary:before{width:54px;height:54px;margin-right:12px}}
 </style>
 </head>
 <body>
