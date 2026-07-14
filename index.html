@@ -225,7 +225,23 @@ nav{grid-template-columns:repeat(6,1fr)}
 <div id="pecasList"></div>
 </section>
 <section id="socios" class="view"><h2 class="list-title">Sócios</h2><div id="sociosList"></div></section>
-<section id="os" class="view"><h2 class="list-title">Ordens de Serviço</h2><div class="section-tools"><button onclick="openOS()">＋ Nova OS</button></div><div id="osList"></div></section>
+
+
+
+<section id="osv17" class="view osv17-page">
+  <div class="osv17-head">
+    <div><h2>Ordens de Serviço</h2><small>Assistência técnica • Lander iPhones</small></div>
+    <button type="button" class="osv17-new" onclick="osv17OpenNew()">+ Nova OS</button>
+  </div>
+  <div class="osv17-tools">
+    <input id="osv17Search" placeholder="Buscar cliente, aparelho, IMEI ou nº da OS..." oninput="osv17Render()">
+    <select id="osv17Filter" onchange="osv17Render()">
+      <option value="">Todos os status</option><option>Recebido</option><option>Em análise</option>
+      <option>Em reparo</option><option>Pronto</option><option>Entregue</option>
+    </select>
+  </div>
+  <div id="osv17List" class="osv17-list"></div>
+</section>
 
 <section id="pdvPanel" class="view">
 <h2 class="list-title">Caixa • PDV</h2>
@@ -248,8 +264,8 @@ nav{grid-template-columns:repeat(6,1fr)}
 <button onclick="show('credito',this)"><span class="nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8" cy="10" r="2"/><path d="M5 16c1-2 5-2 6 0M14 9h4M14 13h4"/></svg></span>CREDIÁRIO</button>
 <button onclick="show('pecas',this)"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M3 7l9-4 9 4-9 4zM3 7v10l9 4 9-4V7M12 11v10"/></svg></span>PEÇAS</button>
 <button onclick="show('socios',this)"><span class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="8" r="3"/><path d="M2 20c0-4 2-7 6-7s6 3 6 7M12 20c0-3 2-6 5-6s5 3 5 6"/></svg></span>SÓCIOS</button>
-<button onclick="show('os',this)"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M14 6l4-4 4 4-4 4zM3 5h7M3 10h7M3 15h18M3 20h18"/></svg></span>OS</button>
-</nav>
+
+<button id="osv17NavBtn" type="button" onclick="osv17Show(this)"><span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M4 5h12v14H4zM8 3h4v4H8zM7 11h6M7 15h6M18 8l2 2-4 4-2 .5.5-2z"/></svg></span>OS</button></nav>
 <dialog id="modal"><form method="dialog" id="form"><h2 id="modalTitle"></h2><div id="fields"></div><div class="actions"><button class="secondary" type="button" onclick="modal.close()">Cancelar</button><button class="save" value="default" onclick="saveEntry(event)">Salvar</button></div></form></dialog>
 <dialog id="productModal"><form id="productForm" onsubmit="saveProduct(event)">
 <h2 id="productModalTitle">Adicionar produto</h2>
@@ -275,34 +291,62 @@ nav{grid-template-columns:repeat(6,1fr)}
 <div id="noticePanel" class="notice-panel"><h2>Central de pendências</h2><div id="noticeList"></div></div>
 
 
-<dialog id="osModal">
-<form id="osForm" onsubmit="saveOS(event)">
-<h2 id="osModalTitle">Nova ordem de serviço</h2>
-<label>Cliente</label><input id="osCliente" required>
-<label>CPF</label><input id="osCpf" inputmode="numeric">
-<label>Telefone / WhatsApp</label><input id="osTelefone" inputmode="tel" required>
-<div class="cost-grid"><div><label>Rua</label><input id="osRua"></div><div><label>Bairro</label><input id="osBairro"></div></div>
-<label>Aparelho</label><input id="osAparelho" required>
-<label>IMEI / Serial</label>
-<div class="imei-row"><input id="osSerial"><button type="button" class="camera-btn" onclick="document.getElementById('imeiCamera').click()">📷</button></div>
-<input id="imeiCamera" type="file" accept="image/*" capture="environment" hidden onchange="readIMEI(event)">
-<small id="ocrStatus"></small>
-<label>Defeito relatado</label><textarea id="osDefeito" required></textarea>
-<label>Foto do aparelho</label><input id="devicePhoto" type="file" accept="image/*" capture="environment" onchange="loadDevicePhoto(event)">
-<img id="devicePhotoPreview" alt="Foto do aparelho" style="display:none;max-width:100%;border-radius:14px;margin-top:8px">
-<label>Serviço a ser realizado</label><textarea id="osServico" required></textarea>
-<label>Pesquisar peça cadastrada</label><input id="osPartSearch" oninput="searchOSParts()" placeholder="Digite o nome da peça">
-<div id="osPartResults"></div><div id="selectedParts"></div>
-<label>Valor cobrado / mão de obra</label><input id="osMaoObra" type="number" min="0" step="0.01" value="0">
-<label>Garantia</label><select id="osGarantia"><option>Sem garantia</option><option>30 dias</option><option>3 meses</option><option>6 meses</option></select>
-<label>Status</label><select id="osStatus" onchange="togglePayment()"><option>Recebido</option><option>Em análise</option><option>Em reparo</option><option>Pronto</option><option>Entregue</option></select>
-<div id="paymentWrap" style="display:none"><label>Forma de pagamento</label><select id="osPagamento"><option>Dinheiro</option><option>Pix</option><option>Débito</option><option>Crédito</option></select></div>
-<label>Assinatura do cliente</label>
-<canvas id="signatureCanvas" width="700" height="220"></canvas>
-<button type="button" class="secondary" onclick="clearSignature()">Limpar assinatura</button>
-<div class="actions"><button type="button" class="secondary" onclick="document.getElementById('osModal').close()">Cancelar</button><button type="submit" class="save">Salvar OS</button></div>
+
+
+<dialog id="osv17Modal" class="osv17-modal">
+<form id="osv17Form" onsubmit="osv17Save(event)" novalidate>
+  <div class="osv17-modal-head">
+    <div><h2 id="osv17Title">Nova Ordem de Serviço</h2><small id="osv17Number">Nova OS</small></div>
+    <button type="button" class="osv17-x" onclick="osv17Close()">×</button>
+  </div>
+  <input id="osv17Id" type="hidden">
+
+  <div class="osv17-block"><h3>Cliente</h3>
+    <label>Nome completo *</label><input id="osv17Client" required>
+    <div class="osv17-grid"><div><label>CPF</label><input id="osv17Cpf" inputmode="numeric"></div>
+    <div><label>WhatsApp *</label><input id="osv17Phone" inputmode="tel" required></div></div>
+    <div class="osv17-grid"><div><label>Rua</label><input id="osv17Street"></div>
+    <div><label>Bairro</label><input id="osv17District"></div></div>
+  </div>
+
+  <div class="osv17-block"><h3>Aparelho</h3>
+    <label>Modelo / aparelho *</label><input id="osv17Device" required>
+    <label>IMEI / Serial</label>
+    <div class="osv17-imei"><input id="osv17Imei"><button type="button" onclick="document.getElementById('osv17ImeiPhoto').click()" aria-label="Fotografar IMEI">📷</button></div>
+    <input id="osv17ImeiPhoto" type="file" accept="image/*" capture="environment" hidden onchange="osv17ReadImei(event)">
+    <small id="osv17Ocr"></small>
+    <label>Defeito relatado *</label><textarea id="osv17Defect" required></textarea>
+    <label>Fotos do aparelho</label><input id="osv17Photos" type="file" accept="image/*" capture="environment" multiple onchange="osv17LoadPhotos(event)">
+    <div id="osv17PhotoPreview" class="osv17-photos"></div>
+  </div>
+
+  <div class="osv17-block"><h3>Serviço</h3>
+    <label>Serviço a ser realizado *</label><textarea id="osv17Service" required></textarea>
+    <label>Pesquisar peça cadastrada</label><input id="osv17PartSearch" placeholder="Digite o nome da peça..." oninput="osv17SearchParts()">
+    <div id="osv17PartResults" class="osv17-results"></div>
+    <div id="osv17SelectedParts"></div>
+    <div class="osv17-grid"><div><label>Mão de obra / serviço</label><input id="osv17Labor" type="number" min="0" step="0.01" value="0" oninput="osv17Calc()"></div>
+    <div><label>Total da OS</label><div id="osv17Total" class="osv17-total">R$ 0,00</div></div></div>
+  </div>
+
+  <div class="osv17-block"><h3>Atendimento</h3>
+    <div class="osv17-grid"><div><label>Garantia</label><select id="osv17Warranty"><option>Sem garantia</option><option>30 dias</option><option>3 meses</option><option>6 meses</option></select></div>
+    <div><label>Status</label><select id="osv17Status" onchange="osv17TogglePayment()"><option>Recebido</option><option>Em análise</option><option>Em reparo</option><option>Pronto</option><option>Entregue</option></select></div></div>
+    <div id="osv17PaymentWrap" hidden><label>Forma de pagamento</label><select id="osv17Payment"><option>Dinheiro</option><option>Pix</option><option>Débito</option><option>Crédito</option></select></div>
+  </div>
+
+  <div class="osv17-block"><h3>Assinatura do cliente</h3>
+    <canvas id="osv17Signature"></canvas>
+    <button type="button" class="osv17-secondary" onclick="osv17ClearSignature()">Limpar assinatura</button>
+  </div>
+
+  <div class="osv17-actions">
+    <button type="button" class="osv17-secondary" onclick="osv17Close()">Cancelar</button>
+    <button type="submit" class="osv17-save">Salvar OS</button>
+  </div>
 </form>
 </dialog>
+
 <script>
 const seed={
 gastos:[
@@ -420,7 +464,7 @@ async function generateAndSharePDF(i){let x=db.os[i],{jsPDF}=window.jspdf,doc=ne
 
 function renderOS(){if(!document.getElementById("osList"))return;osList.innerHTML=db.os.map((x,i)=>{let pc=(x.pecas||[]).reduce((a,p)=>a+Number(p.custo||0),0);return `<div class="os-card"><h3>${esc(x.cliente)} — ${esc(x.aparelho)}</h3><div class="os-meta"><b>Status:</b> ${esc(x.status)}<br><b>CPF:</b> ${esc(x.cpf||"-")}<br><b>Endereço:</b> ${esc(x.rua||"-")} • ${esc(x.bairro||"-")}<br><b>IMEI / Serial:</b> ${esc(x.serial||"-")}<br><b>Defeito:</b> ${esc(x.defeito)}<br><b>Serviço:</b> ${esc(x.servico)}<br><b>Peças:</b> ${(x.pecas||[]).map(p=>esc(p.nome)).join(", ")||"Nenhuma"}<br><b>Custo das peças:</b> ${money(pc)}<br><b>Pagamento:</b> ${esc(x.pagamento||"Disponível quando ficar Pronto")}</div><div class="os-total">Valor cobrado: ${money(x.maoObra)}</div><div class="os-actions"><button onclick="openOS(${i})">Editar</button><button onclick="finishOS(${i})">${x.lancada?"PDF / WhatsApp":"Finalizar"}</button><button onclick="deleteOS(${i})">Excluir</button></div></div>`}).join("")||'<div class="row">Nenhuma OS cadastrada.</div>'}
 if(localStorage.getItem("lander_quick_hidden")==="1"){quick.classList.add("collapsed");document.querySelector(".quick-toggle").textContent="⌄"}
-if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js?v=115");
+if("serviceWorker" in navigator)navigator.serviceWorker.register("sw.js?v=117");
 render();
 
 </script>
@@ -538,3 +582,107 @@ setInterval(renderCash,60000);
 </script>
 
 </body></html>
+
+<style>
+.osv17-page{padding-bottom:130px}.osv17-head{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:12px 0 18px}
+.osv17-head h2{margin:0;font-size:30px}.osv17-head small{color:#9eabbc}.osv17-new,.osv17-save{border:1px solid #168cff;background:#087ff0;color:#fff;border-radius:14px;padding:13px 16px;font-weight:800}
+.osv17-tools{display:grid;grid-template-columns:1fr 170px;gap:10px;margin-bottom:14px}.osv17-tools input,.osv17-tools select,.osv17-modal input,.osv17-modal select,.osv17-modal textarea{width:100%;box-sizing:border-box;background:#06111d;color:#fff;border:1px solid #24577d;border-radius:12px;padding:13px;font-size:16px}
+.osv17-list{display:grid;gap:12px}.osv17-card{background:rgba(1,14,26,.94);border:1px solid #24577d;border-radius:18px;padding:15px}.osv17-card-top{display:flex;justify-content:space-between;gap:12px}.osv17-card h3{margin:0 0 4px}.osv17-card small{color:#aeb8c6}.osv17-badge{height:max-content;border:1px solid #168cff;color:#62b3ff;border-radius:999px;padding:6px 9px;font-size:12px}.osv17-card-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:14px}.osv17-card-actions{display:flex;gap:8px}.osv17-card-actions button,.osv17-secondary{background:#071523;color:#cbd5e1;border:1px solid #24577d;border-radius:11px;padding:10px 12px}
+.osv17-modal{width:min(760px,calc(100% - 20px));max-height:92dvh;background:#020b14;color:#fff;border:1px solid #24577d;border-radius:22px;padding:0}.osv17-modal::backdrop{background:#000c}
+.osv17-modal form{padding:18px}.osv17-modal-head{display:flex;justify-content:space-between;align-items:center;position:sticky;top:-18px;background:#020b14;z-index:3;padding:12px 0}.osv17-modal-head h2{margin:0}.osv17-x{border:0;background:transparent;color:#fff;font-size:36px}
+.osv17-block{border:1px solid #173d5b;background:rgba(4,18,31,.9);border-radius:16px;padding:14px;margin:12px 0}.osv17-block h3{margin:0 0 12px;color:#58adff}.osv17-block label{display:block;color:#b7c1ce;margin:10px 0 6px;font-size:13px}
+.osv17-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.osv17-imei{display:grid;grid-template-columns:1fr 56px;gap:8px}.osv17-imei button{border:1px solid #168cff;background:#071b2d;border-radius:12px;font-size:21px}
+.osv17-photos{display:flex;gap:8px;overflow:auto;margin-top:8px}.osv17-photos img{width:90px;height:90px;object-fit:cover;border-radius:12px;border:1px solid #24577d}.osv17-results button{display:block;width:100%;text-align:left;background:#071523;color:#fff;border:1px solid #24577d;padding:10px;border-radius:10px;margin-top:5px}
+.osv17-part{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #173d5b;padding:10px 0}.osv17-total{font-size:27px;font-weight:900;padding:9px 0}.osv17-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;position:sticky;bottom:-18px;background:#020b14;padding:12px 0}
+#osv17Signature{display:block;width:100%;height:180px;background:#fff;border-radius:12px;touch-action:none}
+@media(max-width:560px){.osv17-tools,.osv17-grid{grid-template-columns:1fr}.osv17-head{align-items:flex-start}.osv17-head h2{font-size:25px}}
+</style>
+
+<script>
+(function(){
+"use strict";
+const OSKEY="lander_os_v17";
+let osv17Data=JSON.parse(localStorage.getItem(OSKEY)||"[]");
+let osv17Parts=[],osv17Photos=[],osv17Sig="",osv17Drawing=false,osv17Ctx=null;
+
+function osv17Store(){localStorage.setItem(OSKEY,JSON.stringify(osv17Data))}
+function osv17Money(v){return Number(v||0).toLocaleString("pt-BR",{style:"currency",currency:"BRL"})}
+function osv17Esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function osv17Get(id){return document.getElementById(id)}
+function osv17AppParts(){return (window.db&&Array.isArray(db.pecas))?db.pecas:[]}
+
+window.osv17Show=function(btn){
+ document.querySelectorAll("main .view").forEach(v=>v.classList.remove("active"));
+ document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+ osv17Get("osv17").classList.add("active");if(btn)btn.classList.add("active");osv17Render();
+};
+window.osv17OpenNew=function(){
+ osv17Get("osv17Form").reset();osv17Get("osv17Id").value="";osv17Get("osv17Title").textContent="Nova Ordem de Serviço";osv17Get("osv17Number").textContent="Nova OS";
+ osv17Parts=[];osv17Photos=[];osv17Sig="";osv17Get("osv17PhotoPreview").innerHTML="";osv17Get("osv17PartResults").innerHTML="";osv17Get("osv17SelectedParts").innerHTML="";
+ osv17Get("osv17Labor").value=0;osv17Get("osv17Status").value="Recebido";osv17TogglePayment();osv17Calc();
+ osv17Get("osv17Modal").showModal();requestAnimationFrame(osv17InitSignature);
+};
+window.osv17Close=function(){osv17Get("osv17Modal").close()};
+window.osv17TogglePayment=function(){osv17Get("osv17PaymentWrap").hidden=!["Pronto","Entregue"].includes(osv17Get("osv17Status").value)};
+window.osv17SearchParts=function(){
+ const q=osv17Get("osv17PartSearch").value.trim().toLowerCase(),el=osv17Get("osv17PartResults");
+ if(!q){el.innerHTML="";return}
+ el.innerHTML=osv17AppParts().filter(x=>String(x.nome||"").toLowerCase().includes(q)).slice(0,8).map((x,i)=>'<button type="button" data-name="'+osv17Esc(x.nome)+'" onclick="osv17AddPart(this.dataset.name)">'+osv17Esc(x.nome)+' • '+osv17Money(x.valor)+'</button>').join("")||"<small>Nenhuma peça encontrada.</small>";
+};
+window.osv17AddPart=function(name){
+ const p=osv17AppParts().find(x=>String(x.nome)===name);if(!p)return;
+ const found=osv17Parts.find(x=>x.nome===name);if(found)found.qtd++;else osv17Parts.push({nome:p.nome,valor:Number(p.valor||0),custo:Number(p.custo||0),qtd:1});
+ osv17Get("osv17PartSearch").value="";osv17Get("osv17PartResults").innerHTML="";osv17RenderParts();
+};
+window.osv17RemovePart=function(i){osv17Parts.splice(i,1);osv17RenderParts()};
+window.osv17RenderParts=function(){
+ osv17Get("osv17SelectedParts").innerHTML=osv17Parts.map((x,i)=>'<div class="osv17-part"><span>'+x.qtd+'x '+osv17Esc(x.nome)+'</span><span>'+osv17Money(x.qtd*x.valor)+' <button type="button" onclick="osv17RemovePart('+i+')">×</button></span></div>').join("");
+ osv17Calc();
+};
+window.osv17Calc=function(){const t=Number(osv17Get("osv17Labor").value||0)+osv17Parts.reduce((a,x)=>a+x.qtd*x.valor,0);osv17Get("osv17Total").textContent=osv17Money(t);return t};
+window.osv17LoadPhotos=function(e){
+ const files=[...(e.target.files||[])].slice(0,4),jobs=files.map(f=>new Promise(ok=>{const r=new FileReader();r.onload=()=>ok(r.result);r.readAsDataURL(f)}));
+ Promise.all(jobs).then(arr=>{osv17Photos=arr;osv17RenderPhotos()});
+};
+function osv17RenderPhotos(){osv17Get("osv17PhotoPreview").innerHTML=osv17Photos.map(x=>'<img src="'+x+'" alt="Foto do aparelho">').join("")}
+window.osv17ReadImei=async function(e){
+ const f=e.target.files&&e.target.files[0],st=osv17Get("osv17Ocr");if(!f)return;st.textContent="Lendo número...";
+ try{if(!window.Tesseract)throw 0;const r=await Tesseract.recognize(f,"eng"),m=(r.data.text||"").replace(/\D/g,"").match(/\d{15}/);if(m)osv17Get("osv17Imei").value=m[0];st.textContent=m?"IMEI identificado. Confira o número.":"Não identifiquei. Digite manualmente."}catch(_){st.textContent="Não identifiquei. Digite manualmente."}
+};
+function osv17InitSignature(){
+ const c=osv17Get("osv17Signature"),rect=c.getBoundingClientRect(),dpr=Math.max(1,devicePixelRatio||1);c.width=Math.round(rect.width*dpr);c.height=Math.round(180*dpr);
+ osv17Ctx=c.getContext("2d");osv17Ctx.scale(dpr,dpr);osv17Ctx.fillStyle="#fff";osv17Ctx.fillRect(0,0,rect.width,180);osv17Ctx.strokeStyle="#111";osv17Ctx.lineWidth=2;osv17Ctx.lineCap="round";
+ if(osv17Sig){const img=new Image();img.onload=()=>osv17Ctx.drawImage(img,0,0,rect.width,180);img.src=osv17Sig}
+ const pos=e=>{const r=c.getBoundingClientRect(),t=e.touches?e.touches[0]:e;return [t.clientX-r.left,t.clientY-r.top]};
+ c.onpointerdown=e=>{osv17Drawing=true;const [x,y]=pos(e);osv17Ctx.beginPath();osv17Ctx.moveTo(x,y);c.setPointerCapture?.(e.pointerId)};
+ c.onpointermove=e=>{if(!osv17Drawing)return;const [x,y]=pos(e);osv17Ctx.lineTo(x,y);osv17Ctx.stroke()};
+ c.onpointerup=c.onpointercancel=()=>{osv17Drawing=false;osv17Sig=c.toDataURL("image/png")};
+}
+window.osv17ClearSignature=function(){osv17Sig="";osv17InitSignature()};
+window.osv17Save=function(e){
+ e.preventDefault();
+ const form=osv17Get("osv17Form");if(!form.reportValidity())return;
+ const id=osv17Get("osv17Id").value||("OS"+Date.now()),old=osv17Data.find(x=>x.id===id),created=old?.created||new Date().toISOString();
+ const item={id,number:old?.number||String(osv17Data.length+1).padStart(4,"0"),created,updated:new Date().toISOString(),
+ client:osv17Get("osv17Client").value.trim(),cpf:osv17Get("osv17Cpf").value.trim(),phone:osv17Get("osv17Phone").value.trim(),street:osv17Get("osv17Street").value.trim(),district:osv17Get("osv17District").value.trim(),
+ device:osv17Get("osv17Device").value.trim(),imei:osv17Get("osv17Imei").value.trim(),defect:osv17Get("osv17Defect").value.trim(),photos:osv17Photos,
+ service:osv17Get("osv17Service").value.trim(),parts:osv17Parts,labor:Number(osv17Get("osv17Labor").value||0),total:osv17Calc(),
+ warranty:osv17Get("osv17Warranty").value,status:osv17Get("osv17Status").value,payment:["Pronto","Entregue"].includes(osv17Get("osv17Status").value)?osv17Get("osv17Payment").value:"",signature:osv17Sig};
+ const i=osv17Data.findIndex(x=>x.id===id);if(i>=0)osv17Data[i]=item;else osv17Data.unshift(item);osv17Store();osv17Close();osv17Render();
+};
+window.osv17Edit=function(id){
+ const x=osv17Data.find(v=>v.id===id);if(!x)return;
+ osv17Get("osv17Form").reset();osv17Get("osv17Id").value=x.id;osv17Get("osv17Title").textContent="Editar Ordem de Serviço";osv17Get("osv17Number").textContent="OS nº "+x.number;
+ const map={osv17Client:x.client,osv17Cpf:x.cpf,osv17Phone:x.phone,osv17Street:x.street,osv17District:x.district,osv17Device:x.device,osv17Imei:x.imei,osv17Defect:x.defect,osv17Service:x.service,osv17Labor:x.labor,osv17Warranty:x.warranty,osv17Status:x.status,osv17Payment:x.payment||"Dinheiro"};
+ Object.entries(map).forEach(([id,v])=>osv17Get(id).value=v??"");osv17Parts=(x.parts||[]).map(v=>({...v}));osv17Photos=[...(x.photos||[])];osv17Sig=x.signature||"";osv17RenderPhotos();osv17RenderParts();osv17TogglePayment();
+ osv17Get("osv17Modal").showModal();requestAnimationFrame(osv17InitSignature);
+};
+window.osv17Delete=function(id){if(!confirm("Excluir esta Ordem de Serviço?"))return;osv17Data=osv17Data.filter(x=>x.id!==id);osv17Store();osv17Render()};
+window.osv17Render=function(){
+ const q=(osv17Get("osv17Search")?.value||"").toLowerCase(),f=osv17Get("osv17Filter")?.value||"",el=osv17Get("osv17List");if(!el)return;
+ const rows=osv17Data.filter(x=>(!f||x.status===f)&&(!q||[x.client,x.device,x.imei,x.number].some(v=>String(v||"").toLowerCase().includes(q))));
+ el.innerHTML=rows.map(x=>'<article class="osv17-card"><div class="osv17-card-top"><div><h3>OS nº '+osv17Esc(x.number)+' • '+osv17Esc(x.client)+'</h3><small>'+osv17Esc(x.device)+(x.imei?' • IMEI '+osv17Esc(x.imei):'')+'</small></div><span class="osv17-badge">'+osv17Esc(x.status)+'</span></div><div class="osv17-card-bottom"><b>'+osv17Money(x.total)+'</b><div class="osv17-card-actions"><button type="button" onclick="osv17Edit(\''+x.id+'\')">Editar</button><button type="button" onclick="osv17Delete(\''+x.id+'\')">Excluir</button></div></div></article>').join("")||'<div class="osv17-card"><small>Nenhuma Ordem de Serviço cadastrada.</small></div>';
+};
+window.addEventListener("DOMContentLoaded",osv17Render);
+})();
+</script>
